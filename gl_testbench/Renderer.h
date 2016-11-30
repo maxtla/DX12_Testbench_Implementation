@@ -1,23 +1,25 @@
 #pragma once
 #include "RenderQueue.h"
+#include "RenderTarget.h"
+#include "DepthStencil.h"
+#include "PipelineState.h"
+#include "DrawInfo.h"
+#include "Mesh.h"
 
 class Renderer {
 public:
 	enum class BACKEND { GL45, VULKAN, DX11, DX12 };
+	enum class CLEAR_BUFFER_FLAGS { COLOR = 1, DEPTH = 2, STENCIL = 4 };
+
 	static Renderer *makeRenderer(BACKEND backend);
-
-	// create a unique Render Command Queue.
-	// thread-safe method
-	virtual RenderQueue* getRenderCommandQueue() = 0;
-
-	virtual bool waitForQueues() = 0;
-	// all command queues have been finished by all threads
-	// and it is safe to process the commands.
-
-	virtual void executeCommandQueues() = 0;
-	// execute all command queues in whatever order suits...
 
 	virtual int initialize(unsigned int width = 800, unsigned int height = 600) = 0;
 	virtual void swapBuffers() = 0;
 	virtual int shutdown() = 0;
+
+	virtual void setClearColor(float, float, float, float) = 0;
+	virtual void clearBuffer(CLEAR_BUFFER_FLAGS) = 0;
+	virtual void setRenderTarget(RenderTarget* rt, DepthStencil* depthStencil) = 0; // complete parameters
+	virtual void setPipelineState(PipelineState* ps) = 0;
+	virtual void draw(Mesh* mesh, DrawInfo* data = nullptr) = 0;
 };

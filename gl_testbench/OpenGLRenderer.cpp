@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include "OpenGLRenderer.h"
-#include "RenderQueue.h"
 
 OpenGLRenderer::OpenGLRenderer()
 {
@@ -9,21 +8,6 @@ OpenGLRenderer::OpenGLRenderer()
 OpenGLRenderer::~OpenGLRenderer()
 {
 }
-
-RenderQueue* OpenGLRenderer::getRenderCommandQueue()
-{
-	return nullptr;
-}
-
-
-void OpenGLRenderer::executeCommandQueues() {
-	return;
-};
-
-bool OpenGLRenderer::waitForQueues()
-{
-	return false;
-};
 
 int OpenGLRenderer::shutdown()
 {
@@ -64,3 +48,9 @@ int OpenGLRenderer::initialize(unsigned int width, unsigned int height) {
 	fprintf(stderr, "%u\n", vertexBuffer[3]);
 	return 0;
 }
+
+void OpenGLRenderer::setClearColor(float, float, float, float) {};
+void OpenGLRenderer::clearBuffer(Renderer::CLEAR_BUFFER_FLAGS) {};
+void OpenGLRenderer::setRenderTarget(RenderTarget* rt, DepthStencil* depthStencil) {};
+void OpenGLRenderer::setPipelineState(PipelineState* ps) {};
+void OpenGLRenderer::draw(Mesh* mesh, DrawInfo* data = nullptr) {};

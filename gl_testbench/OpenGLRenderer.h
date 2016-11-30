@@ -15,10 +15,11 @@ public:
 	OpenGLRenderer();
 	~OpenGLRenderer();
 
-	RenderQueue* getRenderCommandQueue();
-
-	bool waitForQueues();
-	void executeCommandQueues();
+	void setClearColor(float, float, float, float);
+	void clearBuffer(CLEAR_BUFFER_FLAGS);
+	void setRenderTarget(RenderTarget* rt, DepthStencil* depthStencil); // complete parameters
+	void setPipelineState(PipelineState* ps);
+	void draw(Mesh* mesh, DrawInfo* data = nullptr);
 
 	void swapBuffers();
 	int initialize(unsigned int width = 640, unsigned int height = 480);
