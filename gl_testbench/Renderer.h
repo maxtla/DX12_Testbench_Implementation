@@ -1,5 +1,4 @@
 #pragma once
-#include "RenderQueue.h"
 #include "RenderTarget.h"
 #include "DepthStencil.h"
 #include "PipelineState.h"

@@ -2,11 +2,11 @@
 
 
 
-Shader::Shader()
-{
-}
+//Shader::Shader()
+//{
+//}
 
 
-Shader::~Shader()
-{
-}
+//Shader::~Shader()
+//{
+//}

@@ -75,8 +75,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>..\GLEW\include;..\SDL\include;$(IncludePath)</IncludePath>
-    <LibraryPath>..\GLEW\lib\Release\x64;..\SDL\lib\x64;$(LibraryPath)</LibraryPath>
+    <IncludePath>D:\francholi\source\testbench;C:\Program Files\glbinding\include;C:\Program Files\globjects\include;..\GLEW\include;..\SDL\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Program Files\glbinding\lib;C:\Program Files\globjects\lib;..\GLEW\lib\Release\x64;..\SDL\lib\x64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -84,8 +84,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>..\GLEW\include;..\SDL\include;$(IncludePath)</IncludePath>
-    <LibraryPath>..\GLEW\lib\Release\x64;..\SDL\lib\x64;$(LibraryPath)</LibraryPath>
+    <IncludePath>D:\francholi\source\testbench;C:\Program Files\glbinding\include;C:\Program Files\globjects\include;..\GLEW\include;..\SDL\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Program Files\glbinding\lib;C:\Program Files\globjects\lib;..\GLEW\lib\Release\x64;..\SDL\lib\x64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -155,6 +155,7 @@
     <ClCompile Include="Light.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Material.cpp" />
+    <ClCompile Include="MaterialGL.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="MeshPart.cpp" />
     <ClCompile Include="Node.cpp" />
@@ -163,10 +164,10 @@
     <ClCompile Include="PipelineState.cpp" />
     <ClCompile Include="Quadtree.cpp" />
     <ClCompile Include="Renderer.cpp" />
-    <ClCompile Include="RenderQueue.cpp" />
     <ClCompile Include="RenderTarget.cpp" />
     <ClCompile Include="SceneGraph.cpp" />
     <ClCompile Include="Shader.cpp" />
+    <ClCompile Include="ShaderGL.cpp" />
     <ClCompile Include="Texture2D.cpp" />
     <ClCompile Include="Transform.cpp" />
   </ItemGroup>
@@ -177,6 +178,7 @@
     <ClInclude Include="Frustum.h" />
     <ClInclude Include="Light.h" />
     <ClInclude Include="Material.h" />
+    <ClInclude Include="MaterialGL.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="MeshPart.h" />
     <ClInclude Include="Node.h" />
@@ -185,12 +187,15 @@
     <ClInclude Include="PipelineState.h" />
     <ClInclude Include="Quadtree.h" />
     <ClInclude Include="Renderer.h" />
-    <ClInclude Include="RenderQueue.h" />
     <ClInclude Include="RenderTarget.h" />
     <ClInclude Include="SceneGraph.h" />
     <ClInclude Include="Shader.h" />
+    <ClInclude Include="ShaderGL.h" />
     <ClInclude Include="Texture2D.h" />
     <ClInclude Include="Transform.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ClassDiagram.cd" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

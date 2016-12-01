@@ -1,6 +1,9 @@
 #include <stdio.h>
 #include "OpenGLRenderer.h"
 
+using namespace gl;
+using namespace globjects;
+
 OpenGLRenderer::OpenGLRenderer()
 {
 }
@@ -22,6 +25,7 @@ void OpenGLRenderer::swapBuffers()
 }
 
 int OpenGLRenderer::initialize(unsigned int width, unsigned int height) {
+
 	if (SDL_Init(SDL_INIT_EVERYTHING) != 0)
 	{
 		fprintf(stderr, "%s", SDL_GetError());
@@ -36,16 +40,21 @@ int OpenGLRenderer::initialize(unsigned int width, unsigned int height) {
 	window = SDL_CreateWindow("OpenGL", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, SDL_WINDOW_OPENGL);
 	context = SDL_GL_CreateContext(window);
 
-	glewExperimental = GL_TRUE;
-	GLenum err = glewInit();
-	if (GLEW_OK != err)
-	{
-		fprintf(stderr, "Error GLEW: %s\n", glewGetErrorString(err));
-	}
+	// initialize and resolve all functions from the start.
+	glbinding::Binding::initialize(false);
+
+	//globjects::init();
+
+	//glewExperimental = GL_TRUE;
+	//GLenum err = glewInit();
+	//if (GLEW_OK != err)
+	//{
+	//	fprintf(stderr, "Error GLEW: %s\n", glewGetErrorString(err));
+	//}
 
 	GLuint vertexBuffer[10];
 	glGenBuffers(10, &vertexBuffer[0]);
-	fprintf(stderr, "%u\n", vertexBuffer[3]);
+	//fprintf(stderr, "%u\n", vertexBuffer[3]);
 	return 0;
 }
 
@@ -53,4 +62,4 @@ void OpenGLRenderer::setClearColor(float, float, float, float) {};
 void OpenGLRenderer::clearBuffer(Renderer::CLEAR_BUFFER_FLAGS) {};
 void OpenGLRenderer::setRenderTarget(RenderTarget* rt, DepthStencil* depthStencil) {};
 void OpenGLRenderer::setPipelineState(PipelineState* ps) {};
-void OpenGLRenderer::draw(Mesh* mesh, DrawInfo* data = nullptr) {};
+void OpenGLRenderer::draw(Mesh* mesh, DrawInfo* data) {};
