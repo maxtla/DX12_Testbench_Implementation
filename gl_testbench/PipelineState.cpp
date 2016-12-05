@@ -2,11 +2,11 @@
 
 
 
-PipelineState::PipelineState()
+RenderState::RenderState()
 {
 }
 
 
-PipelineState::~PipelineState()
+RenderState::~RenderState()
 {
 }

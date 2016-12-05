@@ -1,10 +1,7 @@
 #pragma once
 #include "Material.h"
-#include <globjects/Program.h>
-#include <globjects/Shader.h>
-#include <globjects/globjects.h>
-#include <glbinding/gl/gl.h>
-#include <map>
+#include <GL/glew.h>
+
 
 class MaterialGL :
 	public Material
@@ -12,17 +9,21 @@ class MaterialGL :
 public:
 	MaterialGL();
 	~MaterialGL();
+
 	void setShader(const std::string& shaderName, ShaderType type);
-	int compileMaterial();
-	void setActive();
-	int updateAttribute(
-		ShaderType type,
-		std::string &attribName,
-		void* data,
-		unsigned int size);
+
+	int compileMaterial(std::string& errString);
+	int enable();
+	void disable();
+
 private:
-	globjects::Program* program;
-	globjects::Shader* shaders[4];
-	static std::map<ShaderType, gl::GLenum> shaderTypeMap;
+	// map from ShaderType to GL_VERTEX_SHADER, ...
+	GLuint mapShaderEnum[4];
+	std::string shaderNames[4];
+	// opengl shader object
+	GLuint shaderObject[4] = { 0,0,0,0 };
+	// TODO: change to PIPELINE
+	// opengl program object
+	GLuint program = 0;
 };
 

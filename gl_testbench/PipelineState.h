@@ -1,8 +1,8 @@
 #pragma once
-class PipelineState
+class RenderState
 {
 public:
-	PipelineState();
-	~PipelineState();
+	RenderState();
+	~RenderState();
 };
 

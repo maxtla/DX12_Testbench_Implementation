@@ -1,0 +1,73 @@
+@startuml
+
+title Relationships - Class Diagram
+
+class Renderer {
+	+Renderer *makeRenderer(BACKEND backend);
+
+	+int initialize(width, height)
+	+void swapBuffers()
+	+int shutdown()
+
+	+void setClearColor(float, float, float, float)
+	+void clearBuffer(CLEAR_BUFFER_FLAGS)
+	+void setRenderTarget(RenderTarget*)
+	+void setRenderState(RenderState*)
+	+void draw(Mesh*, DrawInfo*)
+}
+
+class Mesh {
+	vector<MeshPart*> parts	
+}
+
+class MeshPart {
+	enum MESH_BUFF {VTX,IDX}
+	+void setBuffer(Buffer*, MESH_BUFF)
+	+void setTechnique(Technique*)
+	+Technique* technique;
+	+Buffer* vertexBuffer;
+	+Buffer* indexBuffer;
+	+Transform* worldMatrix;
+	
+}
+
+class Material {
+	+void setShader(SHADER_TYPE, filename)
+	+void compileMaterial()
+	+int enable()
+	+void disable()
+}
+
+class Technique {
+	vector<Pass*> passes
+}
+
+class Pass {
+	// single pass
+	Material* material
+	ResourceBinding* bindings
+	RenderState* rs
+	+int updateAttribute(SHADER_TYPE,name,data,size)
+	+int setAttributePointer(SHADER_TYPE,name,ptr)		
+}
+
+class DrawInfo {
+}
+
+'inheritance
+BufferResource <|-down- Texture
+BufferResource <|-down- Sampler
+BufferResource <|-down- DataBlock
+BufferResource <|-down- Buffer
+
+'composition
+Mesh "1" *-down- "*" MeshPart
+MeshPart "1" *-down- "1" Technique
+Technique "1" *-right- "*" Pass
+Pass "1" *-up- "1" Material
+Pass "1" *-down- "1" RenderState
+Pass "1" *-right- "*" ResourceBinding
+ResourceBinding "*" *-right- "*" BufferResource
+
+
+@enduml

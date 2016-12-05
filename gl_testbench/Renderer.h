@@ -18,7 +18,8 @@ public:
 
 	virtual void setClearColor(float, float, float, float) = 0;
 	virtual void clearBuffer(CLEAR_BUFFER_FLAGS) = 0;
-	virtual void setRenderTarget(RenderTarget* rt, DepthStencil* depthStencil) = 0; // complete parameters
-	virtual void setPipelineState(PipelineState* ps) = 0;
+	virtual void setRenderTarget(RenderTarget* rt) = 0; // complete parameters
+	// can be partially overriden by a specific Technique.
+	virtual void setRenderState(RenderState* ps) = 0;
 	virtual void draw(Mesh* mesh, DrawInfo* data = nullptr) = 0;
 };

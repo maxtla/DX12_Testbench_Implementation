@@ -1,6 +1,8 @@
 #include <string>
 #include "Renderer.h"
 
+#include "Material.h";
+
 #include <SDL_keyboard.h>
 #include <SDL_events.h>
 
