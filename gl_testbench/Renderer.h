@@ -22,4 +22,5 @@ public:
 	// can be partially overriden by a specific Technique.
 	virtual void setRenderState(RenderState* ps) = 0;
 	virtual void draw(Mesh* mesh, DrawInfo* data = nullptr) = 0;
+	BACKEND IMPL;
 };

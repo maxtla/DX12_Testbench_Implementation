@@ -1,28 +1,29 @@
 #pragma once
 
+#include <vector>
+#include <memory>
+
 class Technique;
-class BufferResource;
+class Buffer;
 class Transform;
 
 class MeshPart
 {
 public:
 	enum class MESH_BUFF { VTX = 0, IDX = 1 };
-	MeshPart();
 	~MeshPart();
+	MeshPart();
+	
+	// a technique can be reused by many meshes
+	std::shared_ptr<Technique> technique;
+	// assign with: technique = make_shared<Technique>();
 
-	virtual void setVertexBuffer(BufferResource*, MESH_BUFF type) = 0;
-	virtual void setTechnique(Technique*) = 0;
-
-	// public...
-	Technique* technique;
-	BufferResource* vertexBuffer;
-	BufferResource* indexBuffer;
+	std::vector<std::shared_ptr<Buffer>> vertexBuffers;
+	std::shared_ptr<Buffer> indexBuffer;
 
 	// helpers for testing
-	virtual void setTriangleMesh() = 0;
-	virtual void setQuadMesh() = 0;
-
+	//virtual void setTriangleMesh() = 0;
+	//virtual void setQuadMesh() = 0;
 	// mesh properties
 	Transform* worldMatrix;
 };

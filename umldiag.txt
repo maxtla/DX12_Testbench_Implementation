@@ -1,0 +1,73 @@
+'copy paste this on
+'www.planttext.com
+
+@startuml
+
+title Relationships - Class Diagram
+
+class Renderer {
++Renderer *makeRenderer(BACKEND backend);
+
++int initialize(width, height)
++void swapBuffers()
++int shutdown()
+
++void setClearColor(float, float, float, float)
++void clearBuffer(CLEAR_BUFFER_FLAGS)
++void setRenderTarget(RenderTarget*)
++void setRenderState(RenderState*)
++void draw(Mesh*, DrawInfo*)
+}
+
+class Mesh {
+vector<MeshPart*> parts 
+}
+
+class MeshPart {
+
++vector<Buffer*> vertexBuffer
+
++Buffer* indexBuffer
++Technique* technique
+}
+
+class Material {
++void addShader(SHADER_TYPE, filename)
++bool compileShader(SHADER_TYPE, string& err);
++bool compileMaterial(string& err)
++int enable()
++void disable()
+}
+
+class Technique {
+vector<Pass*> passes
+}
+
+class Pass {
+// single pass
+Material* material
+vector<ResourceBinding*> bindings
+RenderState* rs
+'+int updateAttribute(SHADER_TYPE,name,data,size)
+'+int setAttributePointer(SHADER_TYPE,name,ptr) 
+}
+
+
+'inheritance
+BufferResource <|-down- Texture
+BufferResource <|-down- Sampler
+BufferResource <|-down- DataBlock
+BufferResource <|-down- Buffer
+
+'composition
+Mesh "1" *-down- "*" MeshPart
+MeshPart "1" *-down- "1" Technique
+'MeshPart "1" *-right- "*" Buffer
+Technique "1" *-right- "*" Pass
+Pass "1" *-up- "1" Material
+Pass "1" *-down- "1" RenderState
+Pass "1" *-right- "*" ResourceBinding
+ResourceBinding "*" *-right- "*" BufferResource
+
+
+@enduml

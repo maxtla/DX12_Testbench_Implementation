@@ -48,11 +48,13 @@ int OpenGLRenderer::initialize(unsigned int width, unsigned int height) {
 		fprintf(stderr, "Error GLEW: %s\n", glewGetErrorString(err));
 	}
 
+	/*
 	MaterialGL test0;
 	test0.setShader("..\\assets\\GL45\\VertexShader.glsl", Material::ShaderType::VS);
 	test0.setShader("..\\assets\\GL45\\Fragment.glsl", Material::ShaderType::PS);
 	std::string errString;
 	int res = test0.compileMaterial(errString);
+	*/
 
 
 	return 0;
