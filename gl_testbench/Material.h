@@ -5,9 +5,12 @@
 /* 
  * extend this class with a concrete implementation,
  * public interface should not change...
+ * 
  * A material represents the programmable part of the pipeline:
  * Vertex, Geometry (wont be used), Fragment and Compute Shaders (wont be used)
- * Only need to support Vertex and Fragment
+ * Only need to support Vertex and Fragment for now.
+ * Any extra functionality should be added to a concrete subclass, including instrospection
+ * to figure out input slots for the VS.
  */
 class Material
 {

@@ -158,12 +158,16 @@
     <ClCompile Include="MeshPart.cpp" />
     <ClCompile Include="OpenGLRenderer.cpp" />
     <ClCompile Include="Pass.cpp" />
-    <ClCompile Include="PipelineState.cpp" />
+    <ClCompile Include="RenderState.cpp" />
     <ClCompile Include="Renderer.cpp" />
+    <ClCompile Include="RenderStateGL.cpp" />
     <ClCompile Include="RenderTarget.cpp" />
+    <ClCompile Include="ResourceBinding.cpp" />
+    <ClCompile Include="ResourceBindingGL.cpp" />
     <ClCompile Include="Technique.cpp" />
     <ClCompile Include="Texture2D.cpp" />
     <ClCompile Include="Transform.cpp" />
+    <ClCompile Include="TransformGL.cpp" />
     <ClCompile Include="VertexLayout.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -176,16 +180,17 @@
     <ClInclude Include="MeshPart.h" />
     <ClInclude Include="OpenGLRenderer.h" />
     <ClInclude Include="Pass.h" />
-    <ClInclude Include="PipelineState.h" />
+    <ClInclude Include="RenderState.h" />
     <ClInclude Include="Renderer.h" />
+    <ClInclude Include="RenderStateGL.h" />
     <ClInclude Include="RenderTarget.h" />
+    <ClInclude Include="ResourceBinding.h" />
+    <ClInclude Include="ResourceBindingGL.h" />
     <ClInclude Include="Technique.h" />
     <ClInclude Include="Texture2D.h" />
     <ClInclude Include="Transform.h" />
+    <ClInclude Include="TransformGL.h" />
     <ClInclude Include="VertexLayout.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="ClassDiagram.cd" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

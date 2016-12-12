@@ -4,6 +4,9 @@
 
 #include "Material.h"
 #include "MaterialGL.h"
+#include "Technique.h"
+#include "ResourceBindingGL.h"
+#include "RenderStateGL.h"
 
 OpenGLRenderer::OpenGLRenderer()
 {
@@ -24,6 +27,31 @@ void OpenGLRenderer::swapBuffers()
 {
 	SDL_GL_SwapWindow(window);
 }
+
+Material* OpenGLRenderer::makeMaterial()
+{
+	// return an OpenGL material
+	MaterialGL* m = new MaterialGL();
+	return m;
+}
+
+ResourceBinding* OpenGLRenderer::makeResourceBinding()
+{
+	ResourceBindingGL* m = new ResourceBindingGL();
+	return m;
+}
+
+RenderState* OpenGLRenderer::makeRenderState() {
+	RenderStateGL* rs = new RenderStateGL();
+	return rs;
+}
+
+/* 
+Technique* OpenGLRenderer::createTechnique()
+{
+
+}
+*/
 
 int OpenGLRenderer::initialize(unsigned int width, unsigned int height) {
 
@@ -62,7 +90,7 @@ int OpenGLRenderer::initialize(unsigned int width, unsigned int height) {
 
 
 void OpenGLRenderer::setClearColor(float, float, float, float) {};
-void OpenGLRenderer::clearBuffer(Renderer::CLEAR_BUFFER_FLAGS) {};
+void OpenGLRenderer::clearBuffer(unsigned int) {};
 void OpenGLRenderer::setRenderTarget(RenderTarget* rt) {};
 void OpenGLRenderer::setRenderState(RenderState* ps) {};
 void OpenGLRenderer::draw(Mesh* mesh, DrawInfo* data) {};

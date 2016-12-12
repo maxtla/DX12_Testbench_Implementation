@@ -1,16 +1,20 @@
 #pragma once
-
 #include <vector>
-#include <memory>
-#include "Pass.h"
+#include "ResourceBinding.h"
+#include "Material.h"
+#include "RenderState.h"
 
 class Technique
 {
 public:
 	Technique();
 	~Technique();
+	//void setMaterial(Material* m);
+	//void setRenderState(RenderState* rs);
+	//void setBindings(std::vector<ResourceBinding*>* rb);
 
-	// passess can be reused
-	std::vector<std::shared_ptr<Pass>> passes;
+	Material* material;
+	RenderState* renderState;
+	std::vector<ResourceBinding*>* bindings;
 };
 

@@ -1,17 +1,23 @@
 #include <string>
-#include "Renderer.h"
-
-#include "Material.h"
-#include "Technique.h"
-
 #include <SDL_keyboard.h>
 #include <SDL_events.h>
 
-using namespace std;
 
+//#include "Material.h"
+//#include "Technique.h"
+#include "Renderer.h"
+#include "Mesh.h"
+
+
+using namespace std;
 Renderer* renderer;
-Mesh* mTest;
-void updateTestbench();
+
+// flat scene
+vector<Mesh*> scene;
+vector<Material*> materials;
+
+void updateScene();
+void renderScene();
 
 void run() {
 	SDL_Event windowEvent;
@@ -22,35 +28,72 @@ void run() {
 			if (windowEvent.type == SDL_QUIT) break;
 			if (windowEvent.type == SDL_KEYUP && windowEvent.key.keysym.sym == SDLK_ESCAPE) break;
 		}
-		updateTestbench();
-		// issue render calls
-		// finalise rendering
-		
+		renderer->clearBuffer(Renderer::CLEAR_BUFFER_FLAGS::COLOR | Renderer::CLEAR_BUFFER_FLAGS::DEPTH);
+		updateScene();
+		renderScene();
 		renderer->swapBuffers();
 	}
 	renderer->shutdown();
 }
 
-void updateTestbench()
+/*
+ update positions of triangles in the screen
+ changing their world matrix
+*/
+void updateScene()
 {
+	/*
+	    For each mesh in scene list, update their position 
+	*/
+	for (auto m : scene)
+	{
+		// update m->parts[0]->worldMatrix to a random value!
+		// no coherency considered.
+	}
 	return;
 };
 
+
+void renderScene()
+{
+	for (auto m : scene)
+	{
+		renderer->draw(m);
+	}
+}
+
 int initialiseTestbench()
 {
-	mTest = new Mesh();
+	// load meshes from model file.
+	// load TriangleMesh from static method.
+	// 
 
-	MeshPart* part = new MeshPart();
-	mTest->parts.push_back(part);
-	part->technique = std::make_shared<Technique>();
-	part->technique->passes.push_back(std::make_shared<Pass>());
-	part->technique->passes.push_back(std::make_shared<Pass>());
-	part->technique->passes.push_back(std::make_shared<Pass>());
+	// load Materials.
+	for (int i = 0; i < 10; i++)
+	{
+		// set material name from text file?
+		Material* m = renderer->makeMaterial();
+		materials.push_back(m);
+	}
+
+	// Create a mesh array, to push API interaction
+	// each mesh will have only ONE meshPart.
+	for (int i = 0; i < 50000; i++) {
+		Mesh* m = new Mesh();
+		//m->setMaterial(materials[i%materials.size()]);
+		scene.push_back(m);
+	}
+
+	//MeshPart* part = new MeshPart();
+	//mTest->parts.push_back(part);
+	//part->technique = new Technique();
+	//part->technique->passes.push_back(std::make_shared<Pass>());
+	//part->technique->passes.push_back(std::make_shared<Pass>());
+	//part->technique->passes.push_back(std::make_shared<Pass>());
 	return 0;
 }
 
 void finishApplication() {
-	delete mTest;
 };
 
 int main(int argc, char *argv[])
@@ -61,4 +104,4 @@ int main(int argc, char *argv[])
 	run();
 	finishApplication();
 	return 0;
-}
+};

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <vector>
-#include <memory>
+#include "Renderer.h"
 
 class Technique;
 class Buffer;
@@ -14,17 +14,18 @@ public:
 	~MeshPart();
 	MeshPart();
 	
-	// a technique can be reused by many meshes
-	std::shared_ptr<Technique> technique;
-	// assign with: technique = make_shared<Technique>();
-
-	std::vector<std::shared_ptr<Buffer>> vertexBuffers;
-	std::shared_ptr<Buffer> indexBuffer;
+	// plain and simple. Do not delete these pointers.
+	// tell renderer on your way out that you are done with them.
+	Technique* technique;
+	std::vector<Buffer*> vertexBuffers;
+	Buffer* indexBuffer;
 
 	// helpers for testing
 	//virtual void setTriangleMesh() = 0;
 	//virtual void setQuadMesh() = 0;
 	// mesh properties
 	Transform* worldMatrix;
+private:
+	Renderer* renderer;
 };
 

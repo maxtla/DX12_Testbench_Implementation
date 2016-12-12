@@ -1,12 +1,11 @@
 #pragma once
-
-#include "MeshPart.h"
 #include <vector>
+#include "Technique.h"
+
+class Buffer;
+class Transform;
 
 /*
- * A mesh is just a container of mesh parts.
- * Material information is in the MeshParts and
- * can be different.
  * To render a mesh, use the renderer function.
  */
 
@@ -15,6 +14,12 @@ class Mesh
 public:
 	Mesh();
 	~Mesh();
-	std::vector<MeshPart*> parts;
+
+	Technique* technique;
+	//void setTechnique(Material* m, RenderState* s, const std::vector<ResourceBinding*>* bindings = nullptr);
+
+	std::vector<Buffer*> vertexBuffers;
+	Buffer* indexBuffer;
+	Transform* worldMatrix;
 };
 
