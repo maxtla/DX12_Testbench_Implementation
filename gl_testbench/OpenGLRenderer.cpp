@@ -4,6 +4,8 @@
 
 #include "Material.h"
 #include "MaterialGL.h"
+#include "Mesh.h"
+#include "MeshGL.h"
 #include "Technique.h"
 #include "ResourceBindingGL.h"
 #include "RenderStateGL.h"
@@ -27,6 +29,14 @@ void OpenGLRenderer::swapBuffers()
 {
 	SDL_GL_SwapWindow(window);
 }
+
+Mesh* OpenGLRenderer::makeMesh()
+{
+	// return an OpenGL material
+	MeshGL* m = new MeshGL();
+	return m;
+}
+
 
 Material* OpenGLRenderer::makeMaterial()
 {

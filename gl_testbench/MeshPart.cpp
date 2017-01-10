@@ -1,14 +1,14 @@
-#include "MeshPart.h"
+//#include "MeshPart.h"
 
-#include <iostream>
-
-
-MeshPart::MeshPart()
-{
-}
+//#include <iostream>
 
 
-MeshPart::~MeshPart()
-{
-	std::cout << "meshpart destructor" << std::endl;
-}
+//MeshPart::MeshPart()
+//{
+//}
+
+
+//MeshPart::~MeshPart()
+//{
+//	std::cout << "meshpart destructor" << std::endl;
+//}

@@ -19,6 +19,7 @@ public:
 	Material* makeMaterial();
 	ResourceBinding* makeResourceBinding();
 	RenderState* makeRenderState();
+	Mesh* makeMesh();
 
 	void setClearColor(float, float, float, float);
 	void clearBuffer(unsigned int);

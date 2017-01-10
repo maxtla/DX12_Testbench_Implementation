@@ -2,12 +2,10 @@
 #include <SDL_keyboard.h>
 #include <SDL_events.h>
 
-
 //#include "Material.h"
 //#include "Technique.h"
 #include "Renderer.h"
 #include "Mesh.h"
-
 
 using namespace std;
 Renderer* renderer;
@@ -79,7 +77,7 @@ int initialiseTestbench()
 	// Create a mesh array, to push API interaction
 	// each mesh will have only ONE meshPart.
 	for (int i = 0; i < 50000; i++) {
-		Mesh* m = new Mesh();
+		Mesh* m = renderer->makeMesh();
 		//m->setMaterial(materials[i%materials.size()]);
 		scene.push_back(m);
 	}

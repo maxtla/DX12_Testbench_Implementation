@@ -24,6 +24,7 @@ public:
 	*/
 	static Renderer* makeRenderer(BACKEND backend);
 	virtual Material* makeMaterial() = 0;
+	virtual Mesh* makeMesh() = 0;
 	virtual ResourceBinding* makeResourceBinding() = 0;
 	virtual RenderState* makeRenderState() = 0;
 
