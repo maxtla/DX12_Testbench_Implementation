@@ -78,6 +78,9 @@
     <ClCompile Include="RenderState.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="MeshGL.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Renderer.h">
@@ -138,6 +141,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="RenderState.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MeshGL.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
