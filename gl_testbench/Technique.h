@@ -13,8 +13,9 @@ public:
 	//void setRenderState(RenderState* rs);
 	//void setBindings(std::vector<ResourceBinding*>* rb);
 
-	Material* material;
-	RenderState* renderState;
-	std::vector<ResourceBinding*>* bindings;
+	Material* material = nullptr;
+	RenderState* renderState = nullptr;
+	// zero size vector
+	std::vector<ResourceBinding*> bindings;
 };
 

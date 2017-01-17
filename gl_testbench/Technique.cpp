@@ -9,7 +9,7 @@ Technique::Technique()
 
 Technique::~Technique()
 {
-	std::cout << "destroy technique" << std::endl;
+	std::cout << "destroyed technique" << std::endl;
 }
 
 //void Technique::setMaterial(Material* m) { material = m; }

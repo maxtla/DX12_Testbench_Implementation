@@ -3,12 +3,15 @@
 #include "Renderer.h"
 
 #include <SDL.h>
+#include <GL/glew.h>
 //#include <SDL_opengl.h>
 
 #pragma comment(lib, "opengl32.lib")
 #pragma comment(lib,"glew32.lib")
 #pragma comment(lib,"SDL2.lib")
 #pragma comment(lib,"SDL2main.lib")
+
+
 
 class OpenGLRenderer : public Renderer
 {
@@ -17,24 +20,36 @@ public:
 	~OpenGLRenderer();
 
 	Material* makeMaterial();
+	Mesh* makeMesh();
+	VertexBuffer* makeVertexBuffer();
 	ResourceBinding* makeResourceBinding();
 	RenderState* makeRenderState();
-	Mesh* makeMesh();
+	Technique* makeTechnique() {};
+	std::string getShaderPath();
+
+	int initialize(unsigned int width = 640, unsigned int height = 480);
+	int shutdown();
 
 	void setClearColor(float, float, float, float);
 	void clearBuffer(unsigned int);
 	void setRenderTarget(RenderTarget* rt); // complete parameters
 	void setRenderState(RenderState* ps);
-	void draw(Mesh* mesh, DrawInfo* data = nullptr);
-
-	void swapBuffers();
-	int initialize(unsigned int width = 640, unsigned int height = 480);
-	int shutdown();
+	void submit(Mesh* mesh);
+	void frame();
+	void present();
 
 private:
 	SDL_Window* window;
 	SDL_GLContext context;
-	int initializeOpenGL(int major, int minor, unsigned int width, unsigned int height);
 
+	std::vector<Mesh*> drawList;
+	
+	//int initializeOpenGL(int major, int minor, unsigned int width, unsigned int height);
+	float clearColor[4] = { 0,0,0,0 };
+	std::unordered_map<int, int> BUFFER_MAP = { 
+		{0, 0},
+		{CLEAR_BUFFER_FLAGS::COLOR, GL_COLOR_BUFFER_BIT },
+		{CLEAR_BUFFER_FLAGS::DEPTH, GL_DEPTH_BUFFER_BIT }, 
+		{CLEAR_BUFFER_FLAGS::STENCIL, GL_STENCIL_BUFFER_BIT }
+	};
 };
-

@@ -81,6 +81,15 @@
     <ClCompile Include="MeshGL.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="VertexBuffer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="VertexBufferGL.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Scene.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Renderer.h">
@@ -144,6 +153,18 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="MeshGL.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="IA.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="VertexBuffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="VertexBufferGL.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Scene.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

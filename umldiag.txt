@@ -16,19 +16,23 @@ class Renderer {
 +void clearBuffer(CLEAR_BUFFER_FLAGS)
 +void setRenderTarget(RenderTarget*)
 +void setRenderState(RenderState*)
-+void draw(Mesh*, DrawInfo*)
++void submit(Mesh*)
++void frame();
 }
 
 class Mesh {
-+vector<Buffer*> vertexBuffer
-+Buffer* indexBuffer
++void addIAVertexBufferBinding(VertexBuffer*,offset,location)
++map<location, pair<offset, Buffer*>> geometryBuffers
 +Technique* technique
++Transform* worldMatrix;
++bool _drawIndexed
 }
 
 class Material {
-+void addShader(SHADER_TYPE, filename)
-+bool compileShader(SHADER_TYPE, string& err);
-+bool compileMaterial(string& err)
++void setShader(filename, SHADER_TYPE)
++void removeShader(SHADER_TYPE)
++void addDefine(defineText, SHADER_TYPE)
++int compileMaterial(string& err)
 +int enable()
 +void disable()
 }

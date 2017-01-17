@@ -9,15 +9,21 @@
 #include <Windows.h>
 
 class Mesh;
+class VertexBuffer;
 
 //CRITICAL_SECTION protectHere;
 //#define LOCK EnterCriticalSection(&protectHere)
 //#define UNLOCK LeaveCriticalSection(&protectHere)
 
+namespace CLEAR_BUFFER_FLAGS {
+	static const int COLOR = 1;
+	static const int DEPTH = 2;
+	static const int STENCIL = 4;
+};
+
 class Renderer {
 public:
 	enum class BACKEND { GL45, VULKAN, DX11, DX12 };
-	enum CLEAR_BUFFER_FLAGS { COLOR = 1, DEPTH = 2, STENCIL = 4 };
 
 	/*
 	Return concrete objects of the BACKEND
@@ -25,12 +31,15 @@ public:
 	static Renderer* makeRenderer(BACKEND backend);
 	virtual Material* makeMaterial() = 0;
 	virtual Mesh* makeMesh() = 0;
+	virtual VertexBuffer* makeVertexBuffer() = 0;
 	virtual ResourceBinding* makeResourceBinding() = 0;
 	virtual RenderState* makeRenderState() = 0;
+	virtual std::string getShaderPath() = 0;
 
 	Renderer() { /*InitializeCriticalSection(&protectHere);*/ };
 	virtual int initialize(unsigned int width = 800, unsigned int height = 600) = 0;
 	virtual void swapBuffers() = 0;
+	virtual void present() = 0;
 	virtual int shutdown() = 0;
 
 	virtual void setClearColor(float, float, float, float) = 0;
@@ -38,7 +47,9 @@ public:
 	virtual void setRenderTarget(RenderTarget* rt) = 0; // complete parameters
 	// can be partially overriden by a specific Technique.
 	virtual void setRenderState(RenderState* ps) = 0;
-	virtual void draw(Mesh* mesh, DrawInfo* data = nullptr) = 0;
+	// submit work (to render) to the renderer.
+	virtual void submit(Mesh* mesh) = 0;
+	virtual void frame() = 0;
 	
 	Technique* createTechnique();
 	Technique* getTechnique(unsigned int techniqueId);

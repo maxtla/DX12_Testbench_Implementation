@@ -148,6 +148,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Scene.cpp" />
+    <ClCompile Include="VertexBuffer.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="DepthStencil.cpp" />
     <ClCompile Include="DrawInfo.cpp" />
@@ -169,12 +171,16 @@
     <ClCompile Include="Texture2D.cpp" />
     <ClCompile Include="Transform.cpp" />
     <ClCompile Include="TransformGL.cpp" />
+    <ClCompile Include="VertexBufferGL.cpp" />
     <ClCompile Include="VertexLayout.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Scene.h" />
+    <ClInclude Include="VertexBuffer.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="DepthStencil.h" />
     <ClInclude Include="DrawInfo.h" />
+    <ClInclude Include="IA.h" />
     <ClInclude Include="Material.h" />
     <ClInclude Include="MaterialGL.h" />
     <ClInclude Include="Mesh.h" />
@@ -192,6 +198,7 @@
     <ClInclude Include="Texture2D.h" />
     <ClInclude Include="Transform.h" />
     <ClInclude Include="TransformGL.h" />
+    <ClInclude Include="VertexBufferGL.h" />
     <ClInclude Include="VertexLayout.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

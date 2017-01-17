@@ -9,6 +9,7 @@
 #include "Technique.h"
 #include "ResourceBindingGL.h"
 #include "RenderStateGL.h"
+#include "VertexBufferGL.h"
 
 OpenGLRenderer::OpenGLRenderer()
 {
@@ -25,35 +26,28 @@ int OpenGLRenderer::shutdown()
 	return 0;
 }
 
-void OpenGLRenderer::swapBuffers()
-{
-	SDL_GL_SwapWindow(window);
+Mesh* OpenGLRenderer::makeMesh() { 
+	return new MeshGL(); 
 }
 
-Mesh* OpenGLRenderer::makeMesh()
-{
-	// return an OpenGL material
-	MeshGL* m = new MeshGL();
-	return m;
+std::string OpenGLRenderer::getShaderPath() {
+	return std::string("..\\assets\\GL45\\");
 }
 
+VertexBuffer* OpenGLRenderer::makeVertexBuffer() { 
+	return new VertexBufferGL(); 
+};
 
-Material* OpenGLRenderer::makeMaterial()
-{
-	// return an OpenGL material
-	MaterialGL* m = new MaterialGL();
-	return m;
+Material* OpenGLRenderer::makeMaterial() { 
+	return new MaterialGL(); 
 }
 
-ResourceBinding* OpenGLRenderer::makeResourceBinding()
-{
-	ResourceBindingGL* m = new ResourceBindingGL();
-	return m;
+ResourceBinding* OpenGLRenderer::makeResourceBinding() { 
+	return new ResourceBindingGL(); 
 }
 
-RenderState* OpenGLRenderer::makeRenderState() {
-	RenderStateGL* rs = new RenderStateGL();
-	return rs;
+RenderState* OpenGLRenderer::makeRenderState() { 
+	return new RenderStateGL(); 
 }
 
 /* 
@@ -86,21 +80,71 @@ int OpenGLRenderer::initialize(unsigned int width, unsigned int height) {
 		fprintf(stderr, "Error GLEW: %s\n", glewGetErrorString(err));
 	}
 
-	/*
-	MaterialGL test0;
-	test0.setShader("..\\assets\\GL45\\VertexShader.glsl", Material::ShaderType::VS);
-	test0.setShader("..\\assets\\GL45\\Fragment.glsl", Material::ShaderType::PS);
-	std::string errString;
-	int res = test0.compileMaterial(errString);
-	*/
-
+	glViewport(0, 0, width, height);
 
 	return 0;
 }
 
+/*
+ Super simplified implementation of a work submission
+ TODO.
+*/
+void OpenGLRenderer::submit(Mesh* mesh) 
+{
+	drawList.push_back(mesh);
+};
 
-void OpenGLRenderer::setClearColor(float, float, float, float) {};
-void OpenGLRenderer::clearBuffer(unsigned int) {};
+/*
+ Naive implementation, no re-ordering, checking for state changes, etc.
+ TODO.
+*/
+void OpenGLRenderer::frame() 
+{
+
+	/*
+	for (auto mesh : drawList)
+	{
+		// enable GLSL program
+		mesh->technique->material->enable();
+
+		// bind buffers for this mesh.
+		// this implementation only has buffers in the Vertex Shader!
+		// bind them all before drawing.
+		size_t numberElements = 0;
+		for (auto element : mesh->geometryBuffers) {
+			mesh->bindIAVertexBuffer(element.first);
+			numberElements = element.second.numElements;
+		}
+
+		// everything is bound!
+		// always 0 because we are just generating gl_VertexId
+		glDrawArrays(GL_POINTS, 0, numberElements);
+	}
+	drawList.clear();
+	*/
+};
+
+
+void OpenGLRenderer::present()
+{
+	SDL_GL_SwapWindow(window);
+};
+
+void OpenGLRenderer::setClearColor(float r, float g, float b, float a)
+{
+	//clearColor[0] = r; clearColor[1] = g; clearColor[2] = b; clearColor[3] = a;
+	glClearColor(r, g, b, a);
+};
+
+void OpenGLRenderer::clearBuffer(unsigned int flag) 
+{
+	glClear(GL_COLOR_BUFFER_BIT);
+	return;
+	// using is only valid inside the function!
+	using namespace CLEAR_BUFFER_FLAGS;
+	GLuint glFlags = BUFFER_MAP[flag & COLOR] | BUFFER_MAP[flag & DEPTH] | BUFFER_MAP[flag & STENCIL];
+	glClear(glFlags);
+};
+
 void OpenGLRenderer::setRenderTarget(RenderTarget* rt) {};
 void OpenGLRenderer::setRenderState(RenderState* ps) {};
-void OpenGLRenderer::draw(Mesh* mesh, DrawInfo* data) {};

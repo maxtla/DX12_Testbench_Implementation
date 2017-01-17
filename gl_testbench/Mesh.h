@@ -1,14 +1,11 @@
 #pragma once
-#include <vector>
-#include <string>
-#include "Technique.h"
+#include <unordered_map>
+#include "IA.h"
+#include "VertexBuffer.h"
+//#include "Technique.h"
 
-class Buffer;
 class Transform;
-
-/*
- * To render a mesh, use the renderer function.
- */
+class Technique;
 
 class Mesh
 {
@@ -16,19 +13,16 @@ public:
 	Mesh();
 	~Mesh();
 	// vertex buffers usage hints
-	enum DATA_USAGE { STATIC, DYNAMIC, DONTCARE };
 	Technique* technique;
-
-	//std::vector<Buffer*> vertexBuffers;
-	//Buffer* indexBuffer;
 	Transform* worldMatrix;
+	bool _drawIndexed;
 
-	/*
-	 On the concrete class (MeshGL, MeshVK, ..., MeshDX11, MeshDX12) the appropriate calls will be made
-	 If no interleaved data is desired, then simply call this function multiple times, in order.
-	 After calling this function, the data is expected to be copied inside the Mesh instance or stored 
-	 in a GPU buffer...
-	 */
-	virtual void addIAVertexBuffer(void* data, unsigned long count, DATA_USAGE usage = STATIC) = 0;	
-	virtual void addIAIndexBuffer(std::vector<unsigned int> indices) = 0;
+	struct VertexBufferBind {
+		size_t numElements, offset;
+		VertexBuffer* buffer;
+	};
+	// array of buffers with locations (binding points in shaders)
+	void addIAVertexBufferBinding(VertexBuffer* buffer, size_t offset, size_t size, unsigned int inputStream);
+	void bindIAVertexBuffer(unsigned int location);
+	std::unordered_map<unsigned int, VertexBufferBind> geometryBuffers;
 };
