@@ -1,58 +1,52 @@
+'copy paste this on
+'www.planttext.com
+
 @startuml
 
 title Relationships - Class Diagram
 
 class Renderer {
-	+Renderer *makeRenderer(BACKEND backend);
++Renderer *makeRenderer(BACKEND backend);
 
-	+int initialize(width, height)
-	+void swapBuffers()
-	+int shutdown()
++int initialize(width, height)
++void swapBuffers()
++int shutdown()
 
-	+void setClearColor(float, float, float, float)
-	+void clearBuffer(CLEAR_BUFFER_FLAGS)
-	+void setRenderTarget(RenderTarget*)
-	+void setRenderState(RenderState*)
-	+void draw(Mesh*, DrawInfo*)
++void setClearColor(float, float, float, float)
++void clearBuffer(CLEAR_BUFFER_FLAGS)
++void setRenderTarget(RenderTarget*)
++void setRenderState(RenderState*)
++void submit(Mesh*)
++void frame();
 }
 
 class Mesh {
-	vector<MeshPart*> parts	
-}
-
-class MeshPart {
-	enum MESH_BUFF {VTX,IDX}
-	+void setBuffer(Buffer*, MESH_BUFF)
-	+void setTechnique(Technique*)
-	+Technique* technique;
-	+Buffer* vertexBuffer;
-	+Buffer* indexBuffer;
-	+Transform* worldMatrix;
-	
++void addIAVertexBufferBinding(VertexBuffer*,offset,location)
++map<location, pair<offset, Buffer*>> geometryBuffers
++Technique* technique
++Transform* worldMatrix;
++bool _drawIndexed
 }
 
 class Material {
-	+void setShader(SHADER_TYPE, filename)
-	+void compileMaterial()
-	+int enable()
-	+void disable()
++void setShader(filename, SHADER_TYPE)
++void removeShader(SHADER_TYPE)
++void addDefine(defineText, SHADER_TYPE)
++int compileMaterial(string& err)
++void setConstantValue(data,size,type,location)
++int enable()
++void disable()
 }
 
 class Technique {
-	vector<Pass*> passes
+// single pass
+Material* material
+vector<ResourceBinding*> bindings
+RenderState* rs
+'+int updateAttribute(SHADER_TYPE,name,data,size)
+'+int setAttributePointer(SHADER_TYPE,name,ptr) 
 }
 
-class Pass {
-	// single pass
-	Material* material
-	ResourceBinding* bindings
-	RenderState* rs
-	+int updateAttribute(SHADER_TYPE,name,data,size)
-	+int setAttributePointer(SHADER_TYPE,name,ptr)		
-}
-
-class DrawInfo {
-}
 
 'inheritance
 BufferResource <|-down- Texture
@@ -61,12 +55,11 @@ BufferResource <|-down- DataBlock
 BufferResource <|-down- Buffer
 
 'composition
-Mesh "1" *-down- "*" MeshPart
-MeshPart "1" *-down- "1" Technique
-Technique "1" *-right- "*" Pass
-Pass "1" *-up- "1" Material
-Pass "1" *-down- "1" RenderState
-Pass "1" *-right- "*" ResourceBinding
+Mesh "1" *-down- "1" Technique
+'Mesh "1" *-right- "*" Buffer
+Technique "1" *-up- "1" Material
+Technique "1" *-down- "1" RenderState
+Technique "1" *-right- "*" ResourceBinding
 ResourceBinding "*" *-right- "*" BufferResource
 
 
