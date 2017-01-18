@@ -4,7 +4,7 @@
 
 GLuint VertexBufferGL::usageMapping[3] = { GL_STATIC_COPY, GL_DYNAMIC_COPY, GL_DONT_CARE };
 
-VertexBufferGL::VertexBufferGL() 
+VertexBufferGL::VertexBufferGL() : _handle(0)
 {
 };
 
@@ -24,6 +24,7 @@ void VertexBufferGL::setData(const void* data, size_t size, DATA_USAGE usage )
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, newSSBO);
 	glBufferData(GL_SHADER_STORAGE_BUFFER, size, data, usageMapping[usage]);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+	_handle = newSSBO;
 }
 
 /*
@@ -31,8 +32,8 @@ void VertexBufferGL::setData(const void* data, size_t size, DATA_USAGE usage )
  */
 void VertexBufferGL::bind(size_t offset, size_t size, unsigned int location) {
 	assert(offset + size <= totalSize);
+	//glBindBuffer(GL_SHADER_STORAGE_BUFFER, _handle);
 	glBindBufferRange(GL_SHADER_STORAGE_BUFFER, location, _handle, offset, size);
-	// glBindBufferBase(GL_SHADER_STORAGE_BUFFER, location, _handle);
 }
 
 void VertexBufferGL::unbind() {

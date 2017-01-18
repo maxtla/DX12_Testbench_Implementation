@@ -4,6 +4,7 @@
 #include "RenderState.h"
 #include "DrawInfo.h"
 #include "Technique.h"
+#include "ConstantBuffer.h"
 
 #include <unordered_map>
 #include <Windows.h>
@@ -35,10 +36,11 @@ public:
 	virtual ResourceBinding* makeResourceBinding() = 0;
 	virtual RenderState* makeRenderState() = 0;
 	virtual std::string getShaderPath() = 0;
+	virtual std::string getShaderExtension() = 0;
+	virtual ConstantBuffer* makeConstantBuffer() = 0;
 
 	Renderer() { /*InitializeCriticalSection(&protectHere);*/ };
 	virtual int initialize(unsigned int width = 800, unsigned int height = 600) = 0;
-	virtual void swapBuffers() = 0;
 	virtual void present() = 0;
 	virtual int shutdown() = 0;
 
@@ -55,25 +57,5 @@ public:
 	Technique* getTechnique(unsigned int techniqueId);
 	std::unordered_map<unsigned int, Technique*> techniques;
 	
-	// very naive reference counting for VOID*, so whatever you want to put here....
-	// DO NOT PUT Dynamic arrays in here...
-	//void ref(void* ptr) { 
-	//	LOCK; 
-	//	if (refCount.count(ptr) == 0) 
-	//		refCount[ptr] = 1; 
-	//	else refCount[ptr]+=1; 
-	//	UNLOCK; 
-	//};
-	//void unref(void* ptr) { 
-	//	LOCK; 
-	//	if (refCount.count(ptr) == 1) {
-	//		refCount[ptr]--; 
-	//		if (refCount[ptr] == 0)
-	//			delete ptr;
-	//	}
-	//	UNLOCK; 
-	//};
-
 	BACKEND IMPL;
-	//std::unordered_map<void*, unsigned int> refCount;
 };

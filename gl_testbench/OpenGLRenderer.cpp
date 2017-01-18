@@ -2,14 +2,13 @@
 #include "OpenGLRenderer.h"
 #include <GL/glew.h>
 
-#include "Material.h"
 #include "MaterialGL.h"
-#include "Mesh.h"
 #include "MeshGL.h"
 #include "Technique.h"
 #include "ResourceBindingGL.h"
 #include "RenderStateGL.h"
 #include "VertexBufferGL.h"
+#include "ConstantBufferGL.h"
 
 OpenGLRenderer::OpenGLRenderer()
 {
@@ -30,8 +29,16 @@ Mesh* OpenGLRenderer::makeMesh() {
 	return new MeshGL(); 
 }
 
+ConstantBuffer* OpenGLRenderer::makeConstantBuffer() { 
+	return new ConstantBufferGL(); 
+}
+
 std::string OpenGLRenderer::getShaderPath() {
 	return std::string("..\\assets\\GL45\\");
+}
+
+std::string OpenGLRenderer::getShaderExtension() {
+	return std::string(".glsl");
 }
 
 VertexBuffer* OpenGLRenderer::makeVertexBuffer() { 
@@ -50,13 +57,6 @@ RenderState* OpenGLRenderer::makeRenderState() {
 	return new RenderStateGL(); 
 }
 
-/* 
-Technique* OpenGLRenderer::createTechnique()
-{
-
-}
-*/
-
 int OpenGLRenderer::initialize(unsigned int width, unsigned int height) {
 
 	if (SDL_Init(SDL_INIT_EVERYTHING) != 0)
@@ -65,13 +65,21 @@ int OpenGLRenderer::initialize(unsigned int width, unsigned int height) {
 		exit(-1);
 	}
 
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 5);
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-	SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
-
 	window = SDL_CreateWindow("OpenGL", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, SDL_WINDOW_OPENGL);
 	context = SDL_GL_CreateContext(window);
+
+	// this goes AFTER the CreateContext(window) call :(
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 5);
+	SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
+
+	glClearColor(1.0f, 0.0f, 0.0f, 0.0f);
+	glClearDepth(1.0f);
+	glEnable(GL_DEPTH_TEST);
+	glDepthFunc(GL_LEQUAL);
+
+	glViewport(0, 0, width, height);
 
 	glewExperimental = GL_TRUE;
 	GLenum err = glewInit();
@@ -79,9 +87,6 @@ int OpenGLRenderer::initialize(unsigned int width, unsigned int height) {
 	{
 		fprintf(stderr, "Error GLEW: %s\n", glewGetErrorString(err));
 	}
-
-	glViewport(0, 0, width, height);
-
 	return 0;
 }
 
@@ -100,12 +105,8 @@ void OpenGLRenderer::submit(Mesh* mesh)
 */
 void OpenGLRenderer::frame() 
 {
-
-	/*
 	for (auto mesh : drawList)
 	{
-		// enable GLSL program
-		mesh->technique->material->enable();
 
 		// bind buffers for this mesh.
 		// this implementation only has buffers in the Vertex Shader!
@@ -116,17 +117,29 @@ void OpenGLRenderer::frame()
 			numberElements = element.second.numElements;
 		}
 
+		// enable GLSL program
+		mesh->technique->material->enable();
+
+		float asdf[4] = { 0.5,0.0,0.0,0.0 };
+		mesh->txBuffer->setData(asdf, 4 * sizeof(float), TRANSLATION);
+
 		// everything is bound!
 		// always 0 because we are just generating gl_VertexId
-		glDrawArrays(GL_POINTS, 0, numberElements);
+		glDrawArrays(GL_TRIANGLES, 0, numberElements);
 	}
 	drawList.clear();
-	*/
 };
 
 
 void OpenGLRenderer::present()
 {
+
+//	static int col = 1;
+//	col++;
+
+//	glClearColor(col%2 == 0, col%3 == 0, 0, 1.0);
+//	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
 	SDL_GL_SwapWindow(window);
 };
 
@@ -138,7 +151,7 @@ void OpenGLRenderer::setClearColor(float r, float g, float b, float a)
 
 void OpenGLRenderer::clearBuffer(unsigned int flag) 
 {
-	glClear(GL_COLOR_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	return;
 	// using is only valid inside the function!
 	using namespace CLEAR_BUFFER_FLAGS;

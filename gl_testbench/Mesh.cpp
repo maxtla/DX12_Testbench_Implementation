@@ -4,7 +4,6 @@
 
 Mesh::Mesh()
 {
-	_drawIndexed = false;
 };
 
 /*

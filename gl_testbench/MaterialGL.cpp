@@ -64,25 +64,6 @@ MaterialGL::~MaterialGL()
 	glDeleteProgram(program);
 }
 
-/*
-void MaterialGL::setShader(const std::string& shaderName, ShaderType type)
-{
-	// set new name, and delete old shader if it is valid.
-	// does not compile...
-	if (shaderObject[(uint)type] != 0)
-	{
-		glDeleteShader(shaderObject[(uint)type]);
-		shaderObject[(uint)type] = 0;
-	}
-	shaderNames[(uint)type] = shaderName;
-	if (isValid) {
-		glDeleteProgram(program);
-		program = 0;
-	}
-	isValid = false;
-}
-*/
-
 void MaterialGL::setShader(const std::string& shaderFileName, ShaderType type)
 {
 	if (shaderFileNames.find(type) != shaderFileNames.end())

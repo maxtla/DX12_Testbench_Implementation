@@ -148,6 +148,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="ConstantBuffer.cpp" />
+    <ClCompile Include="ConstantBufferGL.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="VertexBuffer.cpp" />
     <ClCompile Include="Camera.cpp" />
@@ -172,9 +174,10 @@
     <ClCompile Include="Transform.cpp" />
     <ClCompile Include="TransformGL.cpp" />
     <ClCompile Include="VertexBufferGL.cpp" />
-    <ClCompile Include="VertexLayout.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ConstantBuffer.h" />
+    <ClInclude Include="ConstantBufferGL.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="VertexBuffer.h" />
     <ClInclude Include="Camera.h" />
@@ -199,7 +202,10 @@
     <ClInclude Include="Transform.h" />
     <ClInclude Include="TransformGL.h" />
     <ClInclude Include="VertexBufferGL.h" />
-    <ClInclude Include="VertexLayout.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\assets\GL45\FragmentShader.glsl" />
+    <None Include="..\assets\GL45\VertexShader.glsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

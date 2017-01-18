@@ -54,9 +54,6 @@
     <ClCompile Include="MaterialGL.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="VertexLayout.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Technique.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -88,6 +85,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Scene.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ConstantBuffer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ConstantBufferGL.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -128,9 +131,6 @@
     <ClInclude Include="MaterialGL.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="VertexLayout.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Technique.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -167,5 +167,19 @@
     <ClInclude Include="Scene.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ConstantBuffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ConstantBufferGL.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\assets\GL45\FragmentShader.glsl">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\assets\GL45\VertexShader.glsl">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

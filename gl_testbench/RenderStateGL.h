@@ -8,11 +8,8 @@ public:
 	RenderStateGL();
 	~RenderStateGL();
 
-	// enable or disable things:
-	void enableDepth(bool value);
-
-	// set specific values:
-
-	void setState(State& state);
+	void setDepthTest(bool);
+	void setDepthWrite(bool);
+	void setWireFrame(bool);
 };
 

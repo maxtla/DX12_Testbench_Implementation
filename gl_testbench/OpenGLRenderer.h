@@ -22,10 +22,12 @@ public:
 	Material* makeMaterial();
 	Mesh* makeMesh();
 	VertexBuffer* makeVertexBuffer();
+	ConstantBuffer* makeConstantBuffer();
 	ResourceBinding* makeResourceBinding();
 	RenderState* makeRenderState();
 	Technique* makeTechnique() {};
 	std::string getShaderPath();
+	std::string getShaderExtension();
 
 	int initialize(unsigned int width = 640, unsigned int height = 480);
 	int shutdown();

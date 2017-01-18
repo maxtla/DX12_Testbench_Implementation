@@ -23,14 +23,13 @@ public:
 	~Material() {};
 
 	// all defines should be included in the shader before COMPILATION.
-	void addDefine(const std::string& defineText, ShaderType type);
+	Material& addDefine(const std::string& defineText, ShaderType type);
 
 	// set shader name, DOES NOT COMPILE
 	virtual void setShader(const std::string& shaderFileName, ShaderType type) = 0;
 
 	// removes any resource linked to shader type
 	virtual void removeShader(ShaderType type) = 0;
-
 
 	/*
 	 * Compile and link all shaders

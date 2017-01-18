@@ -2,3 +2,5 @@
 #define NORMAL 1
 #define TEXTCOORD 2
 #define INDEXBUFF 4
+
+#define TRANSLATION 5
