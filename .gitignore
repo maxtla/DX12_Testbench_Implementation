@@ -1,0 +1,10 @@
+*.obj
+*.idb
+*.pdb
+*.exe
+*.ilk
+*.db
+*.*~
+\.*
+Debug*
+x64*
