@@ -25,21 +25,12 @@ void Mesh::bindIAVertexBuffer(unsigned int location)
 	vb.buffer->bind(vb.offset,vb.buffer->getSize(),location);
 }
 
-/*
-void Mesh::setTechnique(Material* m, RenderState* s, const std::vector<ResourceBinding*>* bindings = nullptr) {
-	Technique* t = new Technique();
-	if (bindings)
-	{
-		for (auto b : *bindings)
-		{
-			// copy binding
-			t->bindings.push_back(new ResourceBinding(*b));
-		};
-	};
-	t->material = m;
-	this->technique = t;
-};
-*/
+// note, slot is a value set in the shader as well (registry, or binding)
+void Mesh::addTexture(Texture2D* texture, unsigned int slot)
+{
+	// would override the slot if there is another pointer here.
+	textures[slot] = texture;
+}
 
 Mesh::~Mesh()
 {

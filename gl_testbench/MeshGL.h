@@ -9,6 +9,5 @@ class MeshGL :
 public:
 	MeshGL();
 	~MeshGL();
-	static GLuint usageMapping[3];
 };
 

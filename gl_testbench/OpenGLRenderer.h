@@ -22,10 +22,12 @@ public:
 	Material* makeMaterial();
 	Mesh* makeMesh();
 	VertexBuffer* makeVertexBuffer();
-	ConstantBuffer* makeConstantBuffer();
+	ConstantBuffer* makeConstantBuffer(std::string NAME, unsigned int location);
 	ResourceBinding* makeResourceBinding();
 	RenderState* makeRenderState();
 	Technique* makeTechnique() {};
+	Texture2D* makeTexture2D();
+	Sampler2D* makeSampler2D();
 	std::string getShaderPath();
 	std::string getShaderExtension();
 
@@ -46,6 +48,8 @@ private:
 
 	std::vector<Mesh*> drawList;
 	
+	bool globalWireframeMode = false;
+
 	//int initializeOpenGL(int major, int minor, unsigned int width, unsigned int height);
 	float clearColor[4] = { 0,0,0,0 };
 	std::unordered_map<int, int> BUFFER_MAP = { 
@@ -55,3 +59,4 @@ private:
 		{CLEAR_BUFFER_FLAGS::STENCIL, GL_STENCIL_BUFFER_BIT }
 	};
 };
+

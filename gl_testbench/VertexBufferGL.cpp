@@ -10,6 +10,7 @@ VertexBufferGL::VertexBufferGL() : _handle(0)
 
 VertexBufferGL::~VertexBufferGL()
 {
+	glDeleteBuffers(1, &_handle);
 }
 
 void VertexBufferGL::setData(const void* data, size_t size, DATA_USAGE usage )

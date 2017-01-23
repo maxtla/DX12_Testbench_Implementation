@@ -4,17 +4,20 @@
 #include "Material.h"
 #include "RenderState.h"
 
+class Renderer;
+
 class Technique
 {
 public:
 	Technique();
 	~Technique();
-	//void setMaterial(Material* m);
-	//void setRenderState(RenderState* rs);
 	//void setBindings(std::vector<ResourceBinding*>* rb);
+
+	void enable(Renderer* renderer);
 
 	Material* material = nullptr;
 	RenderState* renderState = nullptr;
+
 	// zero size vector
 	std::vector<ResourceBinding*> bindings;
 };

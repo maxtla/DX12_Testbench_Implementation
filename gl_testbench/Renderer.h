@@ -1,4 +1,8 @@
 #pragma once
+
+#include <unordered_map>
+#include <Windows.h>
+
 #include "RenderTarget.h"
 #include "DepthStencil.h"
 #include "RenderState.h"
@@ -6,11 +10,10 @@
 #include "Technique.h"
 #include "ConstantBuffer.h"
 
-#include <unordered_map>
-#include <Windows.h>
-
 class Mesh;
 class VertexBuffer;
+class Texture2D;
+class Sampler2D;
 
 //CRITICAL_SECTION protectHere;
 //#define LOCK EnterCriticalSection(&protectHere)
@@ -33,11 +36,13 @@ public:
 	virtual Material* makeMaterial() = 0;
 	virtual Mesh* makeMesh() = 0;
 	virtual VertexBuffer* makeVertexBuffer() = 0;
+	virtual Texture2D* makeTexture2D() = 0;
+	virtual Sampler2D* makeSampler2D() = 0;
 	virtual ResourceBinding* makeResourceBinding() = 0;
 	virtual RenderState* makeRenderState() = 0;
 	virtual std::string getShaderPath() = 0;
 	virtual std::string getShaderExtension() = 0;
-	virtual ConstantBuffer* makeConstantBuffer() = 0;
+	virtual ConstantBuffer* makeConstantBuffer(std::string NAME, unsigned int location) = 0;
 
 	Renderer() { /*InitializeCriticalSection(&protectHere);*/ };
 	virtual int initialize(unsigned int width = 800, unsigned int height = 600) = 0;
@@ -52,10 +57,6 @@ public:
 	// submit work (to render) to the renderer.
 	virtual void submit(Mesh* mesh) = 0;
 	virtual void frame() = 0;
-	
-	Technique* createTechnique();
-	Technique* getTechnique(unsigned int techniqueId);
-	std::unordered_map<unsigned int, Technique*> techniques;
 	
 	BACKEND IMPL;
 };

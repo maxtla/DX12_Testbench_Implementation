@@ -5,11 +5,18 @@
 class ConstantBufferGL : public ConstantBuffer
 {
 public:
-	ConstantBufferGL();
+	ConstantBufferGL(std::string NAME, unsigned int location);
 	~ConstantBufferGL();
-	void setData(const void* data, size_t size, unsigned int location);
+	void setData(const void* data, size_t size, Material* m, unsigned int location);
+	void bind(Material*);
 
 private:
-	GLuint _handle;
+
+	std::string name;
+	GLuint location;
+	GLuint handle;
+	GLuint index;
+	void* buff = nullptr;
+	void* lastMat;
 };
 

@@ -57,11 +57,27 @@ MaterialGL::MaterialGL()
 
 MaterialGL::~MaterialGL() 
 { 
-	// most basic for now.
-	for (auto shaderObject : shaderObject) {
+	// delete attached constant buffers
+	for (auto buffer : constantBuffers)
+	{
+		if (buffer.second != nullptr)
+		{
+			delete(buffer.second);
+			buffer.second = nullptr;
+		}
+	}
+
+	// delete shader objects and program.
+	for (auto shaderObject : shaderObjects) {
 		glDeleteShader(shaderObject);
 	};
 	glDeleteProgram(program);
+
+};
+
+void MaterialGL::setDiffuse(Color c)
+{
+	
 }
 
 void MaterialGL::setShader(const std::string& shaderFileName, ShaderType type)
@@ -74,10 +90,21 @@ void MaterialGL::setShader(const std::string& shaderFileName, ShaderType type)
 	shaderFileNames[type] = shaderFileName;
 };
 
+// this constant buffer will be bound every time we bind the material
+void MaterialGL::addConstantBuffer(std::string name, unsigned int location)
+{
+	constantBuffers[location] = new ConstantBufferGL(name, location);
+}
+
+// location identifies the constant buffer in a unique way
+void MaterialGL::updateConstantBuffer(const void* data, size_t size, unsigned int location)
+{
+	constantBuffers[location]->setData(data, size, this, location);
+}
 
 void MaterialGL::removeShader(ShaderType type)
 {
-	GLuint shader = shaderObject[(GLuint)type];
+	GLuint shader = shaderObjects[(GLuint)type];
 
 	// check if name exists (if it doesn't there should not be a shader here.
 	if (shaderFileNames.find(type) == shaderFileNames.end())
@@ -89,7 +116,7 @@ void MaterialGL::removeShader(ShaderType type)
 		glDetachShader(program, shader);
 		glDeleteShader(shader);
 	};
-}
+};
 
 int MaterialGL::compileShader(ShaderType type, std::string& errString)
 {
@@ -130,7 +157,7 @@ int MaterialGL::compileShader(ShaderType type, std::string& errString)
 	INFO_OUT(newShader, Shader);
 	std::string err2;
 	COMPILE_LOG(newShader, Shader, err2);
-	shaderObject[shaderIdx] = newShader;
+	shaderObjects[shaderIdx] = newShader;
 	return 0;
 }
 
@@ -143,11 +170,13 @@ int MaterialGL::compileMaterial(std::string& errString)
 	std::string err;
 	if (compileShader(ShaderType::VS, err) < 0) {
 		errString = err;
-		return -1;
+		exit(-1);
+		//return -1;
 	};
 	if (compileShader(ShaderType::PS, err) < 0) {
 		errString = err;
-		return -1;
+		exit(-1);
+		//return -1;
 	};
 	
 	// try to link the program
@@ -156,8 +185,8 @@ int MaterialGL::compileMaterial(std::string& errString)
 		glDeleteProgram(program);
 
 	program = glCreateProgram();
-	glAttachShader(program, shaderObject[(GLuint)ShaderType::VS]);
-	glAttachShader(program, shaderObject[(GLuint)ShaderType::PS]);
+	glAttachShader(program, shaderObjects[(GLuint)ShaderType::VS]);
+	glAttachShader(program, shaderObjects[(GLuint)ShaderType::PS]);
 	glLinkProgram(program);
 
 	std::string err2;
@@ -165,18 +194,23 @@ int MaterialGL::compileMaterial(std::string& errString)
 	COMPILE_LOG(program, Program, err2);
 	isValid = true;
 	return 0;
-}
+};
 
 int MaterialGL::enable() {
 	if (program == 0 || isValid == false)
 		return -1;
 	glUseProgram(program);
+
+	for (auto cb : constantBuffers)
+	{
+		cb.second->bind(this);
+	}
 	return 0;
-}
+};
 
 void MaterialGL::disable() {
 	glUseProgram(0);
-}
+};
 
 //int MaterialGL::updateAttribute(
 //	ShaderType type,

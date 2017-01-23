@@ -9,6 +9,7 @@
 #include "RenderStateGL.h"
 #include "VertexBufferGL.h"
 #include "ConstantBufferGL.h"
+#include "Texture2DGL.h"
 
 OpenGLRenderer::OpenGLRenderer()
 {
@@ -29,8 +30,18 @@ Mesh* OpenGLRenderer::makeMesh() {
 	return new MeshGL(); 
 }
 
-ConstantBuffer* OpenGLRenderer::makeConstantBuffer() { 
-	return new ConstantBufferGL(); 
+Texture2D* OpenGLRenderer::makeTexture2D()
+{
+	return (Texture2D*)new Texture2DGL();
+}
+
+Sampler2D* OpenGLRenderer::makeSampler2D()
+{
+	return (Sampler2D*)new Sampler2DGL();
+}
+
+ConstantBuffer* OpenGLRenderer::makeConstantBuffer(std::string NAME, unsigned int location) { 
+	return new ConstantBufferGL(NAME, location); 
 }
 
 std::string OpenGLRenderer::getShaderPath() {
@@ -54,7 +65,10 @@ ResourceBinding* OpenGLRenderer::makeResourceBinding() {
 }
 
 RenderState* OpenGLRenderer::makeRenderState() { 
-	return new RenderStateGL(); 
+	RenderStateGL* newRS = new RenderStateGL();
+	newRS->setGlobalWireFrame(&this->globalWireframeMode);
+	newRS->setWireFrame(false);
+	return (RenderState*)newRS;
 }
 
 int OpenGLRenderer::initialize(unsigned int width, unsigned int height) {
@@ -65,14 +79,14 @@ int OpenGLRenderer::initialize(unsigned int width, unsigned int height) {
 		exit(-1);
 	}
 
+
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+	SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
+
 	window = SDL_CreateWindow("OpenGL", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, SDL_WINDOW_OPENGL);
 	context = SDL_GL_CreateContext(window);
 
-	// this goes AFTER the CreateContext(window) call :(
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 5);
-	SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
+	SDL_GL_MakeCurrent(window, context);
 
 	glClearColor(1.0f, 0.0f, 0.0f, 0.0f);
 	glClearDepth(1.0f);
@@ -107,21 +121,27 @@ void OpenGLRenderer::frame()
 {
 	for (auto mesh : drawList)
 	{
+		glBindTexture(GL_TEXTURE_2D, 0);
+		for (auto t : mesh->textures)
+		{
+			// we do not really know here if the sampler has been
+			// defined in the shader.
+			t.second->bind(t.first);
+		}
+
+		Technique* t = mesh->technique;
+		t->enable(this);
 
 		// bind buffers for this mesh.
 		// this implementation only has buffers in the Vertex Shader!
 		// bind them all before drawing.
-		size_t numberElements = 0;
+		size_t numberElements = 3;
 		for (auto element : mesh->geometryBuffers) {
 			mesh->bindIAVertexBuffer(element.first);
 			numberElements = element.second.numElements;
 		}
 
-		// enable GLSL program
-		mesh->technique->material->enable();
-
-		float asdf[4] = { 0.5,0.0,0.0,0.0 };
-		mesh->txBuffer->setData(asdf, 4 * sizeof(float), TRANSLATION);
+		mesh->txBuffer->bind(mesh->technique->material);
 
 		// everything is bound!
 		// always 0 because we are just generating gl_VertexId
@@ -133,13 +153,6 @@ void OpenGLRenderer::frame()
 
 void OpenGLRenderer::present()
 {
-
-//	static int col = 1;
-//	col++;
-
-//	glClearColor(col%2 == 0, col%3 == 0, 0, 1.0);
-//	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
 	SDL_GL_SwapWindow(window);
 };
 
@@ -160,4 +173,9 @@ void OpenGLRenderer::clearBuffer(unsigned int flag)
 };
 
 void OpenGLRenderer::setRenderTarget(RenderTarget* rt) {};
-void OpenGLRenderer::setRenderState(RenderState* ps) {};
+
+void OpenGLRenderer::setRenderState(RenderState* ps)
+{
+	// naive implementation
+	ps->set();
+};

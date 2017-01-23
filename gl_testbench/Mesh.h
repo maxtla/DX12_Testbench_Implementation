@@ -5,6 +5,7 @@
 #include "Technique.h"
 #include "Transform.h"
 #include "ConstantBuffer.h"
+#include "Texture2D.h"
 
 class Mesh
 {
@@ -25,8 +26,11 @@ public:
 		VertexBuffer* buffer;
 	};
 	
+	void addTexture(Texture2D* texture, unsigned int slot);
+
 	// array of buffers with locations (binding points in shaders)
 	void addIAVertexBufferBinding(VertexBuffer* buffer, size_t offset, size_t size, unsigned int inputStream);
 	void bindIAVertexBuffer(unsigned int location);
 	std::unordered_map<unsigned int, VertexBufferBind> geometryBuffers;
+	std::unordered_map<unsigned int, Texture2D*> textures;
 };

@@ -71,20 +71,20 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>D:\francholi\source\gl_testbench\SDL\include;$(IncludePath)</IncludePath>
+    <IncludePath>..\include;D:\francholi\source\gl_testbench\SDL\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>..\GLEW\include;..\SDL\include;$(IncludePath);..\;</IncludePath>
+    <IncludePath>..\include;..\GLEW\include;..\SDL\include;$(IncludePath);..\;</IncludePath>
     <LibraryPath>..\GLEW\lib\Release\x64;..\SDL\lib\x64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>D:\francholi\source\gl_testbench\SDL\include;$(IncludePath)</IncludePath>
+    <IncludePath>..\include;D:\francholi\source\gl_testbench\SDL\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>..\GLEW\include;..\SDL\include;$(IncludePath);..\;</IncludePath>
+    <IncludePath>..\include;..\GLEW\include;..\SDL\include;$(IncludePath);..\;</IncludePath>
     <LibraryPath>..\GLEW\lib\Release\x64;..\SDL\lib\x64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -150,7 +150,10 @@
   <ItemGroup>
     <ClCompile Include="ConstantBuffer.cpp" />
     <ClCompile Include="ConstantBufferGL.cpp" />
+    <ClCompile Include="Sampler2D.cpp" />
+    <ClCompile Include="Sampler2DGL.cpp" />
     <ClCompile Include="Scene.cpp" />
+    <ClCompile Include="Texture2DGL.cpp" />
     <ClCompile Include="VertexBuffer.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="DepthStencil.cpp" />
@@ -176,9 +179,13 @@
     <ClCompile Include="VertexBufferGL.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\include\stb_image.h" />
     <ClInclude Include="ConstantBuffer.h" />
     <ClInclude Include="ConstantBufferGL.h" />
+    <ClInclude Include="Sampler2D.h" />
+    <ClInclude Include="Sampler2DGL.h" />
     <ClInclude Include="Scene.h" />
+    <ClInclude Include="Texture2DGL.h" />
     <ClInclude Include="VertexBuffer.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="DepthStencil.h" />

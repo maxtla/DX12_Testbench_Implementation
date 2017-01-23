@@ -7,9 +7,12 @@ class RenderStateGL : public RenderState
 public:
 	RenderStateGL();
 	~RenderStateGL();
-
-	void setDepthTest(bool);
-	void setDepthWrite(bool);
 	void setWireFrame(bool);
+	void set();
+
+	void setGlobalWireFrame(bool* global);
+private:
+	bool _wireframe;
+	bool* globalWireFrame;
 };
 

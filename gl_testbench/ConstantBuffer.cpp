@@ -2,11 +2,6 @@
 
 
 
-ConstantBuffer::ConstantBuffer()
-{
-}
-
-
 ConstantBuffer::~ConstantBuffer()
 {
 }

@@ -11,10 +11,20 @@
 #endif
 layout(binding=POSITION) buffer pos { vec4 position_in[]; };
 
-// uniform inputs
-layout( binding = TRANSLATION ) uniform transform
+// uniform block
+// layout(std140, binding = 20) uniform TransformBlock
+// {
+//  	vec4 tx;
+// } transform;
+
+layout(binding=TRANSLATION) uniform TRANSLATION_NAME
 {
 	vec4 translate;
+};
+
+layout(binding=DIFFUSE_TINT) uniform DIFFUSE_TINT_NAME
+{
+	vec4 diffuseTint;
 };
 
 void main() {

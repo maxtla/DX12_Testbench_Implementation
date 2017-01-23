@@ -1,6 +1,8 @@
 #pragma once
 #include "Material.h"
 #include <GL/glew.h>
+#include <vector>
+#include "ConstantBufferGL.h"
 
 class OpenGLRenderer;
 
@@ -35,9 +37,6 @@ OUT=std::string(buff);\
 }
 
 
-
-
-
 class MaterialGL :
 	public Material
 {
@@ -53,6 +52,14 @@ public:
 	int compileMaterial(std::string& errString);
 	int enable();
 	void disable();
+	GLuint getProgram() { return program; };
+	void setDiffuse(Color c);
+
+	// location identifies the constant buffer in a unique way
+	void updateConstantBuffer(const void* data, size_t size, unsigned int location);
+	// slower version using a string
+	void addConstantBuffer(std::string name, unsigned int location);
+	std::map<unsigned int, ConstantBufferGL*> constantBuffers;
 
 private:
 	// map from ShaderType to GL_VERTEX_SHADER, should be static.
@@ -61,12 +68,13 @@ private:
 	std::string shaderNames[4];
 
 	// opengl shader object
-	GLuint shaderObject[4] = { 0,0,0,0 };
+	GLuint shaderObjects[4] = { 0,0,0,0 };
 
 	// TODO: change to PIPELINE
 	// opengl program object
-	GLuint program = 0;
+	GLuint program;
 	int compileShader(ShaderType type, std::string& errString);
 	std::vector<std::string> expandShaderText(std::string& shaderText, ShaderType type);
+
 };
 
