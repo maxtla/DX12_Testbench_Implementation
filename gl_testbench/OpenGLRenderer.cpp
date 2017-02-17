@@ -60,6 +60,24 @@ Material* OpenGLRenderer::makeMaterial() {
 	return new MaterialGL(); 
 }
 
+/* example of subclassing technique 
+class GLTechnique : public Technique {
+public:
+	GLTechnique(Material* m, RenderState* r) : Technique(m, r) {
+
+	}
+	~GLTechnique() {
+		fprintf(stderr, "subclass destroyed");
+	}
+};
+*/
+
+Technique* OpenGLRenderer::makeTechnique(Material* m, RenderState* r) {
+	// Technique* t = new GLTechnique(m, r);
+	Technique* t = new Technique(m, r);
+	return t;
+}
+
 ResourceBinding* OpenGLRenderer::makeResourceBinding() { 
 	return new ResourceBindingGL(); 
 }
@@ -141,7 +159,7 @@ void OpenGLRenderer::frame()
 			numberElements = element.second.numElements;
 		}
 
-		mesh->txBuffer->bind(mesh->technique->material);
+		mesh->txBuffer->bind(mesh->technique->getMaterial());
 
 		// everything is bound!
 		// always 0 because we are just generating gl_VertexId

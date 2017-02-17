@@ -5,9 +5,11 @@
 
 
 
+/*
 Technique::Technique()
 {
 }
+*/
 
 Technique::~Technique()
 {

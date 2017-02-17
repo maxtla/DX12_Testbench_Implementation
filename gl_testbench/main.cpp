@@ -70,8 +70,8 @@ void updateScene()
 	translation[1] = yt[(0+shift) % (4*360)];
 	translation[2] = -0.1;
 
-	scene[0]->txBuffer->setData( translation, sizeof(translation), 
-			scene[0]->technique->material, TRANSLATION);
+	Mesh* m0 = scene[0];
+	m0->txBuffer->setData( translation, sizeof(translation), m0->technique->getMaterial(), TRANSLATION);
 	translation[2] = 0.0;
 
 
@@ -81,11 +81,8 @@ void updateScene()
 		translation[1] = yt[(i+shift) % (4*360)];
 
 		// updates the buffer data (whenever the implementation decides...)
-		scene[i]->txBuffer->setData(
-			translation, 
-			sizeof(translation), 
-			scene[i]->technique->material,
-			TRANSLATION);
+		Mesh* mn = scene[i];
+		mn->txBuffer->setData( translation, sizeof(translation), mn->technique->getMaterial(), TRANSLATION);
 	}
 	shift++;
 	return;
@@ -175,23 +172,15 @@ int initialiseTestbench()
 		
 		materials.push_back(m);
 	}
-	// basic technique
-	techniques.push_back(new Technique());
-	techniques.push_back(new Technique());
-	techniques.push_back(new Technique());
-
-	techniques[0]->material = materials[0];
-	techniques[1]->material = materials[1];
-	techniques[2]->material = materials[2];
 
 	// one technique with wireframe
-	techniques[0]->renderState = renderer->makeRenderState();
-	techniques[0]->renderState->setWireFrame(true);
+	RenderState* renderState1 = renderer->makeRenderState();
+	renderState1->setWireFrame(true);
 
-	// two techniques with solid
-	techniques[1]->renderState = renderer->makeRenderState();
-	techniques[2]->renderState = renderer->makeRenderState();
-
+	// basic technique
+	techniques.push_back(renderer->makeTechnique(materials[0], renderState1));
+	techniques.push_back(renderer->makeTechnique(materials[1], renderer->makeRenderState()));
+	techniques.push_back(renderer->makeTechnique(materials[2], renderer->makeRenderState()));
 
 	// create texture
 	Texture2D* fatboy = renderer->makeTexture2D();
@@ -252,8 +241,7 @@ void shutdown() {
 	{
 		for (auto g : m->geometryBuffers)
 		{
-			if (g.second.buffer != nullptr)
-				delete g.second.buffer;
+			delete g.second.buffer;
 		}
 		delete(m);
 	}
