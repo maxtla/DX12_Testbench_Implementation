@@ -18,6 +18,8 @@ Renderer* renderer;
 vector<Mesh*> scene;
 vector<Material*> materials;
 vector<Technique*> techniques;
+vector<Texture2D*> textures;
+vector<Sampler2D*> samplers;
 
 // forward decls
 void updateScene();
@@ -185,8 +187,12 @@ int initialiseTestbench()
 	// create texture
 	Texture2D* fatboy = renderer->makeTexture2D();
 	fatboy->loadFromFile("../assets/textures/fatboy.png");
-	fatboy->sampler = renderer->makeSampler2D();
-	fatboy->sampler->setWrap(WRAPPING::REPEAT, WRAPPING::REPEAT);
+	Sampler2D* sampler = renderer->makeSampler2D();
+	sampler->setWrap(WRAPPING::REPEAT, WRAPPING::REPEAT);
+	fatboy->sampler = sampler;
+
+	textures.push_back(fatboy);
+	samplers.push_back(sampler);
 
 	// Create a mesh array with 3 basic vertex buffers.
 	for (int i = 0; i < 2000; i++) {
@@ -215,7 +221,7 @@ int initialiseTestbench()
 		
 		if (i == 0) {
 			m->technique = techniques[2];
-			m->addTexture(fatboy, DIFFUSE_SLOT);
+			m->addTexture(textures[0], DIFFUSE_SLOT);
 			
 		}
 		else 
@@ -245,6 +251,17 @@ void shutdown() {
 		}
 		delete(m);
 	}
+	
+	for (auto s : samplers)
+	{
+		delete s;
+	}
+
+	for (auto t : textures)
+	{
+		delete t;
+	}
+
 	renderer->shutdown();
 };
 
