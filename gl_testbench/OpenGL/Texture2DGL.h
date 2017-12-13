@@ -2,8 +2,7 @@
 
 #include <GL/glew.h>
 
-
-#include "Texture2D.h"
+#include "../Texture2D.h"
 #include "Sampler2DGL.h"
 
 
@@ -17,6 +16,7 @@ public:
 	int loadFromFile(std::string filename);
 	void bind(unsigned int slot);
 
+	// OPENGL HANDLE
 	GLuint textureHandle = 0;
 };
 

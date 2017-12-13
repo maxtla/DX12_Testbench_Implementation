@@ -1,5 +1,5 @@
 #pragma once
-#include "ResourceBinding.h"
+#include "../ResourceBinding.h"
 class ResourceBindingGL :
 	public ResourceBinding
 {

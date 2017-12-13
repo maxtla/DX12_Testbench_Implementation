@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
@@ -22,32 +22,32 @@
     <ProjectGuid>{0A6119F8-5444-4072-AD5C-CABCE1AF14C2}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>gl_testbench</RootNamespace>
-    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
@@ -149,39 +149,49 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="ConstantBuffer.cpp" />
-    <ClCompile Include="ConstantBufferGL.cpp" />
+    <ClCompile Include="OpenGL\ConstantBufferGL.cpp" />
+    <ClCompile Include="OpenGL\MaterialGL.cpp" />
+    <ClCompile Include="OpenGL\MeshGL.cpp" />
+    <ClCompile Include="OpenGL\OpenGLRenderer.cpp" />
+    <ClCompile Include="OpenGL\RenderStateGL.cpp" />
+    <ClCompile Include="OpenGL\ResourceBindingGL.cpp" />
+    <ClCompile Include="OpenGL\Sampler2DGL.cpp" />
+    <ClCompile Include="OpenGL\Texture2DGL.cpp" />
+    <ClCompile Include="OpenGL\TransformGL.cpp" />
+    <ClCompile Include="OpenGL\VertexBufferGL.cpp" />
     <ClCompile Include="Sampler2D.cpp" />
-    <ClCompile Include="Sampler2DGL.cpp" />
     <ClCompile Include="Scene.cpp" />
-    <ClCompile Include="Texture2DGL.cpp" />
     <ClCompile Include="VertexBuffer.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="DepthStencil.cpp" />
     <ClCompile Include="DrawInfo.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Material.cpp" />
-    <ClCompile Include="MaterialGL.cpp" />
     <ClCompile Include="Mesh.cpp" />
-    <ClCompile Include="MeshGL.cpp" />
     <ClCompile Include="MeshPart.cpp" />
-    <ClCompile Include="OpenGLRenderer.cpp" />
     <ClCompile Include="Pass.cpp" />
     <ClCompile Include="RenderState.cpp" />
     <ClCompile Include="Renderer.cpp" />
-    <ClCompile Include="RenderStateGL.cpp" />
     <ClCompile Include="RenderTarget.cpp" />
     <ClCompile Include="ResourceBinding.cpp" />
-    <ClCompile Include="ResourceBindingGL.cpp" />
     <ClCompile Include="Technique.cpp" />
     <ClCompile Include="Texture2D.cpp" />
     <ClCompile Include="Transform.cpp" />
-    <ClCompile Include="TransformGL.cpp" />
-    <ClCompile Include="VertexBufferGL.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\stb_image.h" />
     <ClInclude Include="ConstantBuffer.h" />
     <ClInclude Include="ConstantBufferGL.h" />
+    <ClInclude Include="OpenGL\ConstantBufferGL.h" />
+    <ClInclude Include="OpenGL\MaterialGL.h" />
+    <ClInclude Include="OpenGL\MeshGL.h" />
+    <ClInclude Include="OpenGL\OpenGLRenderer.h" />
+    <ClInclude Include="OpenGL\RenderStateGL.h" />
+    <ClInclude Include="OpenGL\ResourceBindingGL.h" />
+    <ClInclude Include="OpenGL\Sampler2DGL.h" />
+    <ClInclude Include="OpenGL\Texture2DGL.h" />
+    <ClInclude Include="OpenGL\TransformGL.h" />
+    <ClInclude Include="OpenGL\VertexBufferGL.h" />
     <ClInclude Include="Sampler2D.h" />
     <ClInclude Include="Sampler2DGL.h" />
     <ClInclude Include="Scene.h" />

@@ -15,8 +15,19 @@ typedef unsigned int uint;
 
 // recursive function to split a string by a delimiter
 // easier to read than all that crap using STL...
-void split(std::string text, std::vector<std::string>* temp, const char delim = ' ')
+void split(const char* text, std::vector<std::string>* const temp, const char delim = ' ')
+//void split(std::string text, std::vector<std::string>* const temp, const char delim = ' ')
 {
+	unsigned int delimPos = strcspn(text, (const char*)&delim);
+	if (delimPos == strlen(text))
+	{
+		temp->push_back(std::string(text));
+	}
+	else {
+		temp->push_back(std::string(text, delimPos));
+		split(text + delimPos, temp, delim);
+	}
+	/*
 	int pos = text.find(delim, 0);
 	if (pos == -1)
 		temp->push_back(text);
@@ -24,6 +35,7 @@ void split(std::string text, std::vector<std::string>* temp, const char delim = 
 		temp->push_back(text.substr(0, pos));
 		split(text.substr(pos + 1, text.length() - pos - 1), temp, delim);
 	}
+	*/
 }
 
 /*
@@ -66,13 +78,11 @@ MaterialGL::~MaterialGL()
 			buffer.second = nullptr;
 		}
 	}
-
 	// delete shader objects and program.
 	for (auto shaderObject : shaderObjects) {
 		glDeleteShader(shaderObject);
 	};
 	glDeleteProgram(program);
-
 };
 
 void MaterialGL::setDiffuse(Color c)
@@ -84,7 +94,6 @@ void MaterialGL::setShader(const std::string& shaderFileName, ShaderType type)
 {
 	if (shaderFileNames.find(type) != shaderFileNames.end())
 	{
-		// removeShader is implemented in a concrete class
 		removeShader(type);
 	}
 	shaderFileNames[type] = shaderFileName;
@@ -105,7 +114,6 @@ void MaterialGL::updateConstantBuffer(const void* data, size_t size, unsigned in
 void MaterialGL::removeShader(ShaderType type)
 {
 	GLuint shader = shaderObjects[(GLuint)type];
-
 	// check if name exists (if it doesn't there should not be a shader here.
 	if (shaderFileNames.find(type) == shaderFileNames.end())
 	{
@@ -136,6 +144,7 @@ int MaterialGL::compileShader(ShaderType type, std::string& errString)
 	}
 
 	// make final vector<string> with shader source + defines + GLSL version
+	// in theory this uses move semantics (compiler does it automagically)
 	std::vector<std::string> shaderLines = expandShaderText(shaderText, type);
 
 	// debug
@@ -145,8 +154,7 @@ int MaterialGL::compileShader(ShaderType type, std::string& errString)
 	// OpenGL wants an array of GLchar* with null terminated strings 
 	const GLchar** tempShaderLines = new const GLchar*[shaderLines.size()];
 	int i = 0; 
-	// need "auto&" to force "text" not to be a temp string, as we are using the c_str()
-	for (auto &text : shaderLines)
+	for (std::string& text : shaderLines)
 		tempShaderLines[i++] = text.c_str();
 	
 	GLuint newShader = glCreateShader(mapShaderEnum[shaderIdx]);
@@ -166,17 +174,16 @@ int MaterialGL::compileMaterial(std::string& errString)
 	// remove all shaders.
 	removeShader(ShaderType::VS);
 	removeShader(ShaderType::PS);
+
 	// compile shaders
 	std::string err;
 	if (compileShader(ShaderType::VS, err) < 0) {
 		errString = err;
 		exit(-1);
-		//return -1;
 	};
 	if (compileShader(ShaderType::PS, err) < 0) {
 		errString = err;
 		exit(-1);
-		//return -1;
 	};
 	
 	// try to link the program

@@ -4,7 +4,7 @@
 
 #include "MaterialGL.h"
 #include "MeshGL.h"
-#include "Technique.h"
+#include "../Technique.h"
 #include "ResourceBindingGL.h"
 #include "RenderStateGL.h"
 #include "VertexBufferGL.h"
@@ -89,6 +89,12 @@ RenderState* OpenGLRenderer::makeRenderState() {
 	return (RenderState*)newRS;
 }
 
+void OpenGLRenderer::setWinTitle(const char* title) {
+
+	SDL_SetWindowTitle(this->window, title);
+
+}
+
 int OpenGLRenderer::initialize(unsigned int width, unsigned int height) {
 
 	if (SDL_Init(SDL_INIT_EVERYTHING) != 0)
@@ -99,6 +105,7 @@ int OpenGLRenderer::initialize(unsigned int width, unsigned int height) {
 
 
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
 	SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
 
 	window = SDL_CreateWindow("OpenGL", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, SDL_WINDOW_OPENGL);
@@ -119,6 +126,7 @@ int OpenGLRenderer::initialize(unsigned int width, unsigned int height) {
 	{
 		fprintf(stderr, "Error GLEW: %s\n", glewGetErrorString(err));
 	}
+
 	return 0;
 }
 
@@ -169,9 +177,21 @@ void OpenGLRenderer::frame()
 };
 
 
+Uint64 gStart = SDL_GetPerformanceCounter();
+Uint64 gLast = 0;
+char gTitleBuff[256];
+static long int slowDown = 0;
 void OpenGLRenderer::present()
 {
 	SDL_GL_SwapWindow(window);
+	gLast = gStart;
+	gStart = SDL_GetPerformanceCounter();
+	double deltaTime = (double)((gStart - gLast) * 1000 / SDL_GetPerformanceFrequency());
+	if (slowDown++ % 17 == 0)
+	{
+		sprintf(gTitleBuff, "OpenGL - %3.3f", deltaTime);
+		SDL_SetWindowTitle(this->window, gTitleBuff);
+	}
 };
 
 void OpenGLRenderer::setClearColor(float r, float g, float b, float a)

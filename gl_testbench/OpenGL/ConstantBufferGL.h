@@ -1,6 +1,6 @@
 #pragma once
 #include <GL/glew.h>
-#include "ConstantBuffer.h"
+#include "../ConstantBuffer.h"
 
 class ConstantBufferGL : public ConstantBuffer
 {

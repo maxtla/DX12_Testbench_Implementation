@@ -1,5 +1,5 @@
 #pragma once
-#include "Material.h"
+#include "../Material.h"
 #include <GL/glew.h>
 #include <vector>
 #include "ConstantBufferGL.h"

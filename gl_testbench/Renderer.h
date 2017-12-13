@@ -48,6 +48,7 @@ public:
 
 	Renderer() { /*InitializeCriticalSection(&protectHere);*/ };
 	virtual int initialize(unsigned int width = 800, unsigned int height = 600) = 0;
+	virtual void setWinTitle(const char* title) = 0;
 	virtual void present() = 0;
 	virtual int shutdown() = 0;
 

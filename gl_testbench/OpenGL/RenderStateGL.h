@@ -1,6 +1,6 @@
 #pragma once
 #include <vector>
-#include "RenderState.h"
+#include "../RenderState.h"
 
 class RenderStateGL : public RenderState
 {

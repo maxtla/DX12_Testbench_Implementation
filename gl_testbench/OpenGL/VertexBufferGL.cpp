@@ -13,6 +13,9 @@ VertexBufferGL::~VertexBufferGL()
 	glDeleteBuffers(1, &_handle);
 }
 
+/*
+	SSBO based Vertex Buffer
+*/
 void VertexBufferGL::setData(const void* data, size_t size, DATA_USAGE usage )
 {
 	totalSize = size;

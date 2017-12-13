@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Renderer.h"
+#include "../Renderer.h"
 
 #include <SDL.h>
 #include <GL/glew.h>
@@ -32,6 +32,7 @@ public:
 	std::string getShaderExtension();
 
 	int initialize(unsigned int width = 640, unsigned int height = 480);
+	void setWinTitle(const char* title);
 	int shutdown();
 
 	void setClearColor(float, float, float, float);

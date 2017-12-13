@@ -25,9 +25,13 @@ vector<Sampler2D*> samplers;
 void updateScene();
 void renderScene();
 
-// lissajous points
-float xt[4*360], yt[4*360];
 
+constexpr float DENSITY = 0.6; // 1 is spread across circle, 0.00001 is super dense
+constexpr int TOTAL_TRIS = 1500.0f;
+constexpr int TOTAL_PLACES = TOTAL_TRIS / DENSITY;
+float xt[TOTAL_PLACES], yt[TOTAL_PLACES], zt[TOTAL_PLACES];
+
+// lissajous points
 typedef union { 
 	struct { float x, y, z, w; };
 	struct { float r, g, b, a; };
@@ -62,31 +66,35 @@ void updateScene()
 	/*
 	    For each mesh in scene list, update their position 
 	*/
-	float translation[4] = { 0.0,0.0,0.0,0.0 };
-	static int shift = 0;
-
-	//float scale = 359.0 / scene.size();
-	float scale = 1.0;
-	// fatboy slim is a special case. outside the loop
-	translation[0] = xt[(0+shift) % (4*360)];
-	translation[1] = yt[(0+shift) % (4*360)];
-	translation[2] = -0.1;
-
-	Mesh* m0 = scene[0];
-	m0->txBuffer->setData( translation, sizeof(translation), m0->technique->getMaterial(), TRANSLATION);
-	translation[2] = 0.0;
-
-
-	for (int i = 1; i < scene.size(); i++)
+	static int slowDown = 0;
+	static int speed = 5;
+	if (slowDown++ % 2 == 0)
 	{
-		translation[0] = xt[(i+shift) % (4*360)];
-		translation[1] = yt[(i+shift) % (4*360)];
 
-		// updates the buffer data (whenever the implementation decides...)
-		Mesh* mn = scene[i];
-		mn->txBuffer->setData( translation, sizeof(translation), mn->technique->getMaterial(), TRANSLATION);
+		float translation[4] = { 0.0,0.0,0.0,0.0 };
+		static int shift = 0;
+
+		float scale = 1.0;
+		translation[0] = xt[(0+shift) % (TOTAL_PLACES)];
+		translation[1] = yt[(0+shift) % (TOTAL_PLACES)];
+		translation[2] = zt[(0+shift) % (TOTAL_PLACES)];
+
+		Mesh* const m0 = scene[0];
+		m0->txBuffer->setData( translation, sizeof(translation), m0->technique->getMaterial(), TRANSLATION);
+	//	translation[2] = 0.0;
+
+
+		for (int i = 1; i < scene.size(); i++)
+		{
+			translation[0] = xt[(i+shift) % (TOTAL_PLACES)];
+			translation[1] = yt[(i+shift) % (TOTAL_PLACES)];
+
+			// updates the buffer data (whenever the implementation decides...)
+			Mesh* mn = scene[i];
+			mn->txBuffer->setData( translation, sizeof(translation), mn->technique->getMaterial(), TRANSLATION);
+		}
+		shift+=speed;
 	}
-	shift++;
 	return;
 };
 
@@ -133,10 +141,12 @@ int initialiseTestbench()
 	};
 
 	float degToRad = M_PI / 180.0;
-	for (int a = 0; a < 4*360; a++)
+	float scale = 359.9f / (float)TOTAL_PLACES;
+	for (int a = 0; a < TOTAL_PLACES; a++)
 	{
-		xt[a] = 0.8f * cosf(degToRad * (a/4.0) * 3.0);
-		yt[a] = 0.8f * sinf(degToRad * (a/4.0) * 2.0);
+		xt[a] = 0.8f * cosf(degToRad * ((float)a*scale) * 3.0);
+		yt[a] = 0.8f * sinf(degToRad * ((float)a*scale) * 2.0);
+		zt[a] = -0.0001 * a;
 	};
 
 	// triangle geometry:
@@ -195,7 +205,7 @@ int initialiseTestbench()
 	samplers.push_back(sampler);
 
 	// Create a mesh array with 3 basic vertex buffers.
-	for (int i = 0; i < 2000; i++) {
+	for (int i = 0; i < TOTAL_TRIS; i++) {
 
 		Mesh* m = renderer->makeMesh();
 
@@ -219,7 +229,7 @@ int initialiseTestbench()
 		// we can create a constant buffer outside the material, for example as part of the Mesh.
 		m->txBuffer = renderer->makeConstantBuffer(std::string(TRANSLATION_NAME), TRANSLATION);
 		
-		if (i == 0) {
+		if (i == TOTAL_TRIS-1) {
 			m->technique = techniques[2];
 			m->addTexture(textures[0], DIFFUSE_SLOT);
 			
@@ -268,7 +278,8 @@ void shutdown() {
 int main(int argc, char *argv[])
 {
 	renderer = Renderer::makeRenderer(Renderer::BACKEND::GL45);
-	renderer->initialize();
+	renderer->initialize(800,600);
+	renderer->setWinTitle("OpenGL");
 	renderer->setClearColor(0.5, 0.1, 0.1, 1.0);
 	initialiseTestbench();
 	run();
