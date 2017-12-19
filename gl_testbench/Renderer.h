@@ -9,9 +9,9 @@
 #include "DrawInfo.h"
 #include "Technique.h"
 #include "ConstantBuffer.h"
+#include "VertexBuffer.h"
 
 class Mesh;
-class VertexBuffer;
 class Texture2D;
 class Sampler2D;
 
@@ -35,7 +35,7 @@ public:
 	static Renderer* makeRenderer(BACKEND backend);
 	virtual Material* makeMaterial() = 0;
 	virtual Mesh* makeMesh() = 0;
-	virtual VertexBuffer* makeVertexBuffer() = 0;
+	virtual VertexBuffer* makeVertexBuffer(size_t size, VertexBuffer::DATA_USAGE usage) = 0;
 	virtual Texture2D* makeTexture2D() = 0;
 	virtual Sampler2D* makeSampler2D() = 0;
 	virtual ResourceBinding* makeResourceBinding() = 0;

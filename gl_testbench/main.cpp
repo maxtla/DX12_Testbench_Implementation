@@ -2,6 +2,7 @@
 #include <SDL_keyboard.h>
 #include <SDL_events.h>
 #include <type_traits> 
+#include <assert.h>
 
 #include "Renderer.h"
 #include "Mesh.h"
@@ -21,14 +22,18 @@ vector<Technique*> techniques;
 vector<Texture2D*> textures;
 vector<Sampler2D*> samplers;
 
+VertexBuffer* pos;
+VertexBuffer* nor;
+VertexBuffer* uvs;
+
 // forward decls
 void updateScene();
 void renderScene();
 
 
-constexpr float DENSITY = 0.6; // 1 is spread across circle, 0.00001 is super dense
-constexpr int TOTAL_TRIS = 1500.0f;
-constexpr int TOTAL_PLACES = TOTAL_TRIS / DENSITY;
+constexpr float DENSITY = 0.5; // 1 is spread across circle, 0.00001 is super dense
+constexpr int TOTAL_TRIS = 10;
+constexpr int TOTAL_PLACES = (float)TOTAL_TRIS / DENSITY;
 float xt[TOTAL_PLACES], yt[TOTAL_PLACES], zt[TOTAL_PLACES];
 
 // lissajous points
@@ -67,8 +72,10 @@ void updateScene()
 	    For each mesh in scene list, update their position 
 	*/
 	static int slowDown = 0;
-	static int speed = 5;
-	if (slowDown++ % 2 == 0)
+	static int speed = 0;
+
+	/*
+	if (slowDown++ % 500 == 0)
 	{
 
 		float translation[4] = { 0.0,0.0,0.0,0.0 };
@@ -95,6 +102,7 @@ void updateScene()
 		}
 		shift+=speed;
 	}
+	*/
 	return;
 };
 
@@ -146,7 +154,7 @@ int initialiseTestbench()
 	{
 		xt[a] = 0.8f * cosf(degToRad * ((float)a*scale) * 3.0);
 		yt[a] = 0.8f * sinf(degToRad * ((float)a*scale) * 2.0);
-		zt[a] = -0.0001 * a;
+		zt[a] = 0.0f;// -0.01 * a;
 	};
 
 	// triangle geometry:
@@ -204,27 +212,30 @@ int initialiseTestbench()
 	textures.push_back(fatboy);
 	samplers.push_back(sampler);
 
+	// pre-allocate one single vertex buffer for ALL triangles
+	pos = renderer->makeVertexBuffer(TOTAL_TRIS * sizeof(triPos), VertexBuffer::DATA_USAGE::STATIC);
+	nor = renderer->makeVertexBuffer(TOTAL_TRIS * sizeof(triNor), VertexBuffer::DATA_USAGE::STATIC);
+	uvs = renderer->makeVertexBuffer(TOTAL_TRIS * sizeof(triUV), VertexBuffer::DATA_USAGE::STATIC);
+
 	// Create a mesh array with 3 basic vertex buffers.
 	for (int i = 0; i < TOTAL_TRIS; i++) {
 
 		Mesh* m = renderer->makeMesh();
 
-		constexpr auto numberOfElements = std::extent<decltype(triPos)>::value;
+		constexpr auto numberOfPosElements = std::extent<decltype(triPos)>::value;
+		size_t offset = i * sizeof(triPos);
+		pos->setData(triPos, sizeof(triPos), offset);
+		m->addIAVertexBufferBinding(pos, offset, numberOfPosElements, sizeof(float4), POSITION);
 
-		VertexBuffer* pos = renderer->makeVertexBuffer();
-		pos->setData(triPos, sizeof(triPos), VertexBuffer::STATIC);
-		pos->bind(0, sizeof(triPos), POSITION);
-		m->addIAVertexBufferBinding(pos, 0, numberOfElements, POSITION);
+		constexpr auto numberOfNorElements = std::extent<decltype(triNor)>::value;
+		offset = i * sizeof(triNor);
+		nor->setData(triNor, sizeof(triNor), offset);
+		m->addIAVertexBufferBinding(nor, offset, numberOfNorElements, sizeof(float4), NORMAL);
 
-		VertexBuffer* nor = renderer->makeVertexBuffer();
-		nor->setData(triNor, sizeof(triNor), VertexBuffer::STATIC);
-		nor->bind(0, sizeof(triNor), NORMAL);
-		m->addIAVertexBufferBinding(nor, 0, numberOfElements, NORMAL);
-
-		VertexBuffer* uvs = renderer->makeVertexBuffer();
-		uvs->setData(triUV, sizeof(triUV), VertexBuffer::STATIC);
-		uvs->bind(0, sizeof(triUV), TEXTCOORD);
-		m->addIAVertexBufferBinding(uvs, 0, numberOfElements, TEXTCOORD);
+		constexpr auto numberOfUVElements = std::extent<decltype(triUV)>::value;
+		offset = i * sizeof(triUV);
+		uvs->setData(triUV, sizeof(triUV), offset);
+		m->addIAVertexBufferBinding(uvs, offset, numberOfUVElements , sizeof(float2), TEXTCOORD);
 
 		// we can create a constant buffer outside the material, for example as part of the Mesh.
 		m->txBuffer = renderer->makeConstantBuffer(std::string(TRANSLATION_NAME), TRANSLATION);
@@ -235,6 +246,7 @@ int initialiseTestbench()
 			
 		}
 		else 
+			// every other triangle is wireframe (except for the last)
 			m->technique = techniques[ i % 2];
 
 		scene.push_back(m);
@@ -255,12 +267,18 @@ void shutdown() {
 	}
 	for (auto m : scene)
 	{
-		for (auto g : m->geometryBuffers)
-		{
-			delete g.second.buffer;
-		}
 		delete(m);
-	}
+		//for (auto g : m->geometryBuffers)
+		//{
+			//delete g.second.buffer;
+		//}
+	};
+	assert(pos->refCount() == 0);
+	delete pos;
+	assert(nor->refCount() == 0);
+	delete nor;
+	assert(uvs->refCount() == 0);
+	delete uvs;
 	
 	for (auto s : samplers)
 	{
@@ -271,7 +289,6 @@ void shutdown() {
 	{
 		delete t;
 	}
-
 	renderer->shutdown();
 };
 
@@ -280,7 +297,7 @@ int main(int argc, char *argv[])
 	renderer = Renderer::makeRenderer(Renderer::BACKEND::GL45);
 	renderer->initialize(800,600);
 	renderer->setWinTitle("OpenGL");
-	renderer->setClearColor(0.5, 0.1, 0.1, 1.0);
+	renderer->setClearColor(0.0, 0.1, 0.1, 1.0);
 	initialiseTestbench();
 	run();
 	shutdown();
