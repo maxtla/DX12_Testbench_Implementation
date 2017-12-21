@@ -1,12 +1,19 @@
-﻿  OpenGLRenderer.cpp
-OpenGL\OpenGLRenderer.cpp(172): warning C4267: 'argument': conversion from 'size_t' to 'GLsizei', possible loss of data
-OpenGL\OpenGLRenderer.cpp(203): warning C4267: 'argument': conversion from 'size_t' to 'GLsizei', possible loss of data
-OpenGL\OpenGLRenderer.cpp(224): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
-  C:\Program Files (x86)\Windows Kits\10\Include\10.0.16299.0\ucrt\stdio.h(1772): note: see declaration of 'sprintf'
+﻿  main.cpp
+main.cpp(36): warning C4244: 'initializing': conversion from 'float' to 'const int', possible loss of data
+main.cpp(95): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+main.cpp(151): warning C4305: 'initializing': truncation from 'double' to 'float'
+main.cpp(152): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+main.cpp(155): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+main.cpp(156): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+main.cpp(157): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+main.cpp(161): warning C4838: conversion from 'double' to 'float' requires a narrowing conversion
+main.cpp(161): warning C4305: 'initializing': truncation from 'double' to 'float'
+main.cpp(163): warning C4838: conversion from 'double' to 'float' requires a narrowing conversion
+main.cpp(163): warning C4305: 'initializing': truncation from 'double' to 'float'
+main.cpp(298): warning C4305: 'argument': truncation from 'double' to 'float'
   Generating code
-d:\source\testbench\gl_testbench\renderer.cpp(9): warning C4715: 'Renderer::makeRenderer': not all control paths return a value
-  160 of 2324 functions ( 6.9%) were compiled, the rest were copied from previous compilation.
-    95 functions were new in current compilation
-    80 functions had inline decision re-evaluated but remain unchanged
+  3 of 2322 functions ( 0.1%) were compiled, the rest were copied from previous compilation.
+    0 functions were new in current compilation
+    0 functions had inline decision re-evaluated but remain unchanged
   Finished generating code
   gl_testbench.vcxproj -> D:\source\testbench\x64\Release\gl_testbench.exe

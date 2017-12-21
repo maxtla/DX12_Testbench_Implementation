@@ -33,7 +33,7 @@ public:
 	Return concrete objects of the BACKEND
 	*/
 	static Renderer* makeRenderer(BACKEND backend);
-	virtual Material* makeMaterial() = 0;
+	virtual Material* makeMaterial(const std::string& name) = 0;
 	virtual Mesh* makeMesh() = 0;
 	virtual VertexBuffer* makeVertexBuffer(size_t size, VertexBuffer::DATA_USAGE usage) = 0;
 	virtual Texture2D* makeTexture2D() = 0;

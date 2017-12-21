@@ -19,7 +19,7 @@ public:
 	OpenGLRenderer();
 	~OpenGLRenderer();
 
-	Material* makeMaterial();
+	Material* makeMaterial(const std::string& name);
 	Mesh* makeMesh();
 	//VertexBuffer* makeVertexBuffer();
 	VertexBuffer* makeVertexBuffer(size_t size, VertexBuffer::DATA_USAGE usage);
