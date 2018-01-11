@@ -8,21 +8,3 @@ Renderer* Renderer::makeRenderer(BACKEND option)
 		return new OpenGLRenderer();
 }
 
-	
-	/*
-	int newId = 0;
-	while (techniques.count(newId) != 0)
-		newId++;
-	techniques[newId] = new Technique();
-
-	return techniques[newId];
-}
-
-Technique* Renderer::getTechnique(unsigned int techniqueId) {
-	if (techniques.count(techniqueId) == 1)
-		return techniques[techniqueId];
-	else
-		return nullptr;
-}
-*/
-

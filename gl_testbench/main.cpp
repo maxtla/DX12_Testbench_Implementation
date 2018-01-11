@@ -26,8 +26,13 @@ void updateScene();
 void renderScene();
 
 
-constexpr float DENSITY = 0.6; // 1 is spread across circle, 0.00001 is super dense
+// TOTAL_TRIS pretty much decides how many drawcalls in a brute force approach.
 constexpr int TOTAL_TRIS = 1500.0f;
+
+// this has to do with how the triangles are spread in the screen, not important.
+constexpr float DENSITY = 0.5; // [ 0.1 , 0.99 ]
+
+// If you make DENSITY too small it will use more memory here
 constexpr int TOTAL_PLACES = TOTAL_TRIS / DENSITY;
 float xt[TOTAL_PLACES], yt[TOTAL_PLACES], zt[TOTAL_PLACES];
 
@@ -81,15 +86,13 @@ void updateScene()
 
 		Mesh* const m0 = scene[0];
 		m0->txBuffer->setData( translation, sizeof(translation), m0->technique->getMaterial(), TRANSLATION);
-	//	translation[2] = 0.0;
-
 
 		for (int i = 1; i < scene.size(); i++)
 		{
 			translation[0] = xt[(i+shift) % (TOTAL_PLACES)];
 			translation[1] = yt[(i+shift) % (TOTAL_PLACES)];
 
-			// updates the buffer data (whenever the implementation decides...)
+			// updates the buffer data (when function returns, data from translation can be reused)
 			Mesh* mn = scene[i];
 			mn->txBuffer->setData( translation, sizeof(translation), mn->technique->getMaterial(), TRANSLATION);
 		}
@@ -117,7 +120,6 @@ int initialiseTestbench()
 	std::string defineUV = "#define TEXTCOORD " + std::to_string(TEXTCOORD) + "\n";
 
 	std::string defineTX = "#define TRANSLATION " + std::to_string(TRANSLATION) + "\n";
-
 	std::string defineTXName = "#define TRANSLATION_NAME " + std::string(TRANSLATION_NAME) + "\n";
 	
 	std::string defineDiffCol = "#define DIFFUSE_TINT " + std::to_string(DIFFUSE_TINT) + "\n";

@@ -163,17 +163,11 @@
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="VertexBuffer.cpp" />
     <ClCompile Include="Camera.cpp" />
-    <ClCompile Include="DepthStencil.cpp" />
-    <ClCompile Include="DrawInfo.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Material.cpp" />
     <ClCompile Include="Mesh.cpp" />
-    <ClCompile Include="MeshPart.cpp" />
-    <ClCompile Include="Pass.cpp" />
     <ClCompile Include="RenderState.cpp" />
     <ClCompile Include="Renderer.cpp" />
-    <ClCompile Include="RenderTarget.cpp" />
-    <ClCompile Include="ResourceBinding.cpp" />
     <ClCompile Include="Technique.cpp" />
     <ClCompile Include="Texture2D.cpp" />
     <ClCompile Include="Transform.cpp" />
@@ -181,7 +175,6 @@
   <ItemGroup>
     <ClInclude Include="..\include\stb_image.h" />
     <ClInclude Include="ConstantBuffer.h" />
-    <ClInclude Include="ConstantBufferGL.h" />
     <ClInclude Include="OpenGL\ConstantBufferGL.h" />
     <ClInclude Include="OpenGL\MaterialGL.h" />
     <ClInclude Include="OpenGL\MeshGL.h" />
@@ -193,32 +186,17 @@
     <ClInclude Include="OpenGL\TransformGL.h" />
     <ClInclude Include="OpenGL\VertexBufferGL.h" />
     <ClInclude Include="Sampler2D.h" />
-    <ClInclude Include="Sampler2DGL.h" />
     <ClInclude Include="Scene.h" />
-    <ClInclude Include="Texture2DGL.h" />
     <ClInclude Include="VertexBuffer.h" />
     <ClInclude Include="Camera.h" />
-    <ClInclude Include="DepthStencil.h" />
-    <ClInclude Include="DrawInfo.h" />
     <ClInclude Include="IA.h" />
     <ClInclude Include="Material.h" />
-    <ClInclude Include="MaterialGL.h" />
     <ClInclude Include="Mesh.h" />
-    <ClInclude Include="MeshGL.h" />
-    <ClInclude Include="MeshPart.h" />
-    <ClInclude Include="OpenGLRenderer.h" />
-    <ClInclude Include="Pass.h" />
     <ClInclude Include="RenderState.h" />
     <ClInclude Include="Renderer.h" />
-    <ClInclude Include="RenderStateGL.h" />
-    <ClInclude Include="RenderTarget.h" />
-    <ClInclude Include="ResourceBinding.h" />
-    <ClInclude Include="ResourceBindingGL.h" />
     <ClInclude Include="Technique.h" />
     <ClInclude Include="Texture2D.h" />
     <ClInclude Include="Transform.h" />
-    <ClInclude Include="TransformGL.h" />
-    <ClInclude Include="VertexBufferGL.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\assets\GL45\FragmentShader.glsl" />

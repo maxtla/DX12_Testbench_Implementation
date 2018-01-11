@@ -23,7 +23,7 @@ public:
 	Mesh* makeMesh();
 	VertexBuffer* makeVertexBuffer();
 	ConstantBuffer* makeConstantBuffer(std::string NAME, unsigned int location);
-	ResourceBinding* makeResourceBinding();
+//	ResourceBinding* makeResourceBinding();
 	RenderState* makeRenderState();
 	Technique* makeTechnique(Material* m, RenderState* r);
 	Texture2D* makeTexture2D();
@@ -37,7 +37,7 @@ public:
 
 	void setClearColor(float, float, float, float);
 	void clearBuffer(unsigned int);
-	void setRenderTarget(RenderTarget* rt); // complete parameters
+//	void setRenderTarget(RenderTarget* rt); // complete parameters
 	void setRenderState(RenderState* ps);
 	void submit(Mesh* mesh);
 	void frame();

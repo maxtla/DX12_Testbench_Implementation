@@ -1,6 +1,3 @@
-'copy paste this on
-'www.planttext.com
-
 @startuml
 
 title Relationships - Class Diagram
@@ -9,23 +6,32 @@ class Renderer {
 +Renderer *makeRenderer(BACKEND backend);
 
 +int initialize(width, height)
-+void swapBuffers()
++void present()
 +int shutdown()
 
 +void setClearColor(float, float, float, float)
 +void clearBuffer(CLEAR_BUFFER_FLAGS)
-+void setRenderTarget(RenderTarget*)
 +void setRenderState(RenderState*)
 +void submit(Mesh*)
 +void frame();
 }
 
 class Mesh {
-+void addIAVertexBufferBinding(VertexBuffer*,offset,location)
-+map<location, pair<offset, Buffer*>> geometryBuffers
++void addIAVertexBufferBinding(...)
++void bindVertexBuffer(...)
++void addTexture(...)
+
++map<location, pair<offset, VertexBufferBind>> geometryBuffers
++map<location, pair<offset, Texture2D>> textures
 +Technique* technique
-+Transform* worldMatrix;
-+bool _drawIndexed
++Transform* transform;
++ConstantBuffer* txBuffer;
+}
+
+class VertexBufferBind {
+    size_t numElements;
+    size_t offset;
+    VertexBuffer* buffer;
 }
 
 class Material {
@@ -46,20 +52,33 @@ RenderState* rs
 '+int setAttributePointer(SHADER_TYPE,name,ptr) 
 }
 
+class ConstantBuffer {
++void setData(...)
++void bind(...)
+}
 
-'inheritance
-BufferResource <|-down- Texture
-BufferResource <|-down- Sampler
-BufferResource <|-down- DataBlock
-BufferResource <|-down- Buffer
+class VertexBuffer {
++void setData(...)
++void bind(...)
++void unbind(...)
++size_t getSize()
+}
+
+class Texture2D {
+    +int loadFromFile(string)
+    Sampler2D* sampler;
+}
+
 
 'composition
+VertexBufferBind "1" *-down- "1" VertexBuffer
+Mesh "1" *-down- "*" VertexBufferBind
+Mesh "1" *-down- "*" Texture2D
+Mesh "1" *-down- "1" ConstantBuffer
+Texture2D "1" *-down- "1" Sampler2D
 Mesh "1" *-down- "1" Technique
 'Mesh "1" *-right- "*" Buffer
 Technique "1" *-up- "1" Material
 Technique "1" *-down- "1" RenderState
-Technique "1" *-right- "*" ResourceBinding
-ResourceBinding "*" *-right- "*" BufferResource
-
 
 @enduml

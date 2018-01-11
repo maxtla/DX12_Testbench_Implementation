@@ -3,10 +3,7 @@
 #include <unordered_map>
 #include <Windows.h>
 
-#include "RenderTarget.h"
-#include "DepthStencil.h"
 #include "RenderState.h"
-#include "DrawInfo.h"
 #include "Technique.h"
 #include "ConstantBuffer.h"
 
@@ -38,12 +35,10 @@ public:
 	virtual VertexBuffer* makeVertexBuffer() = 0;
 	virtual Texture2D* makeTexture2D() = 0;
 	virtual Sampler2D* makeSampler2D() = 0;
-	virtual ResourceBinding* makeResourceBinding() = 0;
 	virtual RenderState* makeRenderState() = 0;
 	virtual std::string getShaderPath() = 0;
 	virtual std::string getShaderExtension() = 0;
 	virtual ConstantBuffer* makeConstantBuffer(std::string NAME, unsigned int location) = 0;
-
 	virtual Technique* makeTechnique(Material*, RenderState*) = 0;
 
 	Renderer() { /*InitializeCriticalSection(&protectHere);*/ };
@@ -54,7 +49,6 @@ public:
 
 	virtual void setClearColor(float, float, float, float) = 0;
 	virtual void clearBuffer(unsigned int) = 0;
-	virtual void setRenderTarget(RenderTarget* rt) = 0; // complete parameters
 	// can be partially overriden by a specific Technique.
 	virtual void setRenderState(RenderState* ps) = 0;
 	// submit work (to render) to the renderer.

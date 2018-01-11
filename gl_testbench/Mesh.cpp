@@ -1,6 +1,4 @@
 #include "Mesh.h"
-#include "ResourceBinding.h"
-
 
 Mesh::Mesh()
 {

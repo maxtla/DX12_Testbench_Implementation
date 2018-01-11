@@ -1,15 +1,6 @@
 #include <iostream>
-
 #include "Technique.h"
 #include "Renderer.h"
-
-
-
-/*
-Technique::Technique()
-{
-}
-*/
 
 Technique::~Technique()
 {
@@ -24,4 +15,3 @@ void Technique::enable(Renderer* renderer)
 	material->enable();
 }
 
-//void Technique::setBindings(std::vector<ResourceBinding*>* rb) { bindings = rb; }

@@ -2,6 +2,7 @@
 #include "ResourceBindingGL.h"
 
 
+/*
 ResourceBindingGL::ResourceBindingGL()
 {
 }
@@ -20,3 +21,5 @@ void mapBufferToAddr(std::string name, float* ptr)
 {
 
 }
+
+*/

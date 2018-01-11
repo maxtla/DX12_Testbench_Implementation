@@ -78,9 +78,9 @@ Technique* OpenGLRenderer::makeTechnique(Material* m, RenderState* r) {
 	return t;
 }
 
-ResourceBinding* OpenGLRenderer::makeResourceBinding() { 
-	return new ResourceBindingGL(); 
-}
+//ResourceBinding* OpenGLRenderer::makeResourceBinding() { 
+//	return new ResourceBindingGL(); 
+//}
 
 RenderState* OpenGLRenderer::makeRenderState() { 
 	RenderStateGL* newRS = new RenderStateGL();
@@ -210,7 +210,7 @@ void OpenGLRenderer::clearBuffer(unsigned int flag)
 	glClear(glFlags);
 };
 
-void OpenGLRenderer::setRenderTarget(RenderTarget* rt) {};
+//void OpenGLRenderer::setRenderTarget(RenderTarget* rt) {};
 
 void OpenGLRenderer::setRenderState(RenderState* ps)
 {
