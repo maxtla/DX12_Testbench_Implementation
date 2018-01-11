@@ -58,9 +58,10 @@ std::vector<std::string> MaterialGL::expandShaderText(std::string& shaderSource,
 	return result;
 };
 
-MaterialGL::MaterialGL()
+MaterialGL::MaterialGL(const std::string& _name)
 { 
 	isValid = false;
+	name = _name;
 	mapShaderEnum[(uint)ShaderType::VS] = GL_VERTEX_SHADER;
 	mapShaderEnum[(uint)ShaderType::PS] = GL_FRAGMENT_SHADER;
 	mapShaderEnum[(uint)ShaderType::GS] = GL_GEOMETRY_SHADER;

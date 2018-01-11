@@ -52,12 +52,12 @@ std::string OpenGLRenderer::getShaderExtension() {
 	return std::string(".glsl");
 }
 
-VertexBuffer* OpenGLRenderer::makeVertexBuffer() { 
-	return new VertexBufferGL(); 
+VertexBuffer* OpenGLRenderer::makeVertexBuffer( size_t size, VertexBuffer::DATA_USAGE usage) { 
+	return new VertexBufferGL(size, usage); 
 };
 
-Material* OpenGLRenderer::makeMaterial() { 
-	return new MaterialGL(); 
+Material* OpenGLRenderer::makeMaterial(const std::string& name) { 
+	return new MaterialGL(name); 
 }
 
 /* example of subclassing technique 
@@ -102,20 +102,31 @@ int OpenGLRenderer::initialize(unsigned int width, unsigned int height) {
 		fprintf(stderr, "%s", SDL_GetError());
 		exit(-1);
 	}
-
-
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+	// Request an OpenGL 4.5 context (should be core)
+	SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_COMPATIBILITY);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 5);
+	// Also request a depth buffer
+	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
-	SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
+
+
 
 	window = SDL_CreateWindow("OpenGL", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, SDL_WINDOW_OPENGL);
 	context = SDL_GL_CreateContext(window);
 
+
 	SDL_GL_MakeCurrent(window, context);
 
+	int major, minor;
+	SDL_GL_GetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, &major);
+	SDL_GL_GetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, &minor);
+
 	glClearColor(1.0f, 0.0f, 0.0f, 0.0f);
-	glClearDepth(1.0f);
 	glEnable(GL_DEPTH_TEST);
+	glDisable(GL_CULL_FACE);
+	glClearDepth(1.0f);
 	glDepthFunc(GL_LEQUAL);
 
 	glViewport(0, 0, width, height);
@@ -134,9 +145,15 @@ int OpenGLRenderer::initialize(unsigned int width, unsigned int height) {
  Super simplified implementation of a work submission
  TODO.
 */
+
+int perMat = 1;
 void OpenGLRenderer::submit(Mesh* mesh) 
 {
-	drawList.push_back(mesh);
+	if (perMat) {
+		drawList2[mesh->technique].push_back(mesh);
+	}
+	else
+		drawList.push_back(mesh);
 };
 
 /*
@@ -145,35 +162,53 @@ void OpenGLRenderer::submit(Mesh* mesh)
 */
 void OpenGLRenderer::frame() 
 {
-	for (auto mesh : drawList)
-	{
-		glBindTexture(GL_TEXTURE_2D, 0);
-		for (auto t : mesh->textures)
+	if (!perMat) {
+
+		for (auto mesh : drawList)
 		{
-			// we do not really know here if the sampler has been
-			// defined in the shader.
-			t.second->bind(t.first);
+			mesh->technique->enable(this);
+			size_t numberElements = mesh->geometryBuffers[0].numElements;
+			glBindTexture(GL_TEXTURE_2D, 0);
+			for (auto t : mesh->textures)
+			{
+				// we do not really know here if the sampler has been
+				// defined in the shader.
+				t.second->bind(t.first);
+			}
+			for (auto element : mesh->geometryBuffers) {
+				mesh->bindIAVertexBuffer(element.first);
+			}
+			mesh->txBuffer->bind(mesh->technique->getMaterial());
+			glDrawArrays(GL_TRIANGLES, 0, numberElements);
 		}
-
-		Technique* t = mesh->technique;
-		t->enable(this);
-
-		// bind buffers for this mesh.
-		// this implementation only has buffers in the Vertex Shader!
-		// bind them all before drawing.
-		size_t numberElements = 3;
-		for (auto element : mesh->geometryBuffers) {
-			mesh->bindIAVertexBuffer(element.first);
-			numberElements = element.second.numElements;
-		}
-
-		mesh->txBuffer->bind(mesh->technique->getMaterial());
-
-		// everything is bound!
-		// always 0 because we are just generating gl_VertexId
-		glDrawArrays(GL_TRIANGLES, 0, numberElements);
+		drawList.clear();
 	}
-	drawList.clear();
+
+	else 
+	{
+		for (auto work : drawList2)
+		{
+			work.first->enable(this);
+			for (auto mesh : work.second)
+			{
+				size_t numberElements = mesh->geometryBuffers[0].numElements;
+				//mesh->technique->enable(this);
+				glBindTexture(GL_TEXTURE_2D, 0);
+				for (auto t : mesh->textures)
+				{
+					// we do not really know here if the sampler has been
+					// defined in the shader.
+					t.second->bind(t.first);
+				}
+				for (auto element : mesh->geometryBuffers) {
+					mesh->bindIAVertexBuffer(element.first);
+				}
+				mesh->txBuffer->bind(work.first->getMaterial());
+				glDrawArrays(GL_TRIANGLES, 0, numberElements);
+			}
+		}
+		drawList2.clear();
+	}
 };
 
 
@@ -186,10 +221,11 @@ void OpenGLRenderer::present()
 	SDL_GL_SwapWindow(window);
 	gLast = gStart;
 	gStart = SDL_GetPerformanceCounter();
-	double deltaTime = (double)((gStart - gLast) * 1000 / SDL_GetPerformanceFrequency());
-	if (slowDown++ % 17 == 0)
+
+	if (slowDown++ % 2 == 0)
 	{
-		sprintf(gTitleBuff, "OpenGL - %3.3f", deltaTime);
+		double deltaTime = (double)((gStart - gLast) * 1000.0 / SDL_GetPerformanceFrequency());
+		sprintf(gTitleBuff, "OpenGL - %3.0f", deltaTime);
 		SDL_SetWindowTitle(this->window, gTitleBuff);
 	}
 };

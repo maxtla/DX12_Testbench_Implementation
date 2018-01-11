@@ -19,9 +19,10 @@ public:
 	OpenGLRenderer();
 	~OpenGLRenderer();
 
-	Material* makeMaterial();
+	Material* makeMaterial(const std::string& name);
 	Mesh* makeMesh();
-	VertexBuffer* makeVertexBuffer();
+	//VertexBuffer* makeVertexBuffer();
+	VertexBuffer* makeVertexBuffer(size_t size, VertexBuffer::DATA_USAGE usage);
 	ConstantBuffer* makeConstantBuffer(std::string NAME, unsigned int location);
 //	ResourceBinding* makeResourceBinding();
 	RenderState* makeRenderState();
@@ -48,6 +49,7 @@ private:
 	SDL_GLContext context;
 
 	std::vector<Mesh*> drawList;
+	std::unordered_map<Technique*, std::vector<Mesh*>> drawList2;
 	
 	bool globalWireframeMode = false;
 

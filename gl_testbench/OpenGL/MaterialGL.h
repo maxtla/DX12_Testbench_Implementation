@@ -43,7 +43,7 @@ class MaterialGL :
 	friend OpenGLRenderer;
 
 public:
-	MaterialGL();
+	MaterialGL(const std::string& name);
 	~MaterialGL();
 
 
@@ -72,6 +72,7 @@ private:
 
 	// TODO: change to PIPELINE
 	// opengl program object
+	std::string name;
 	GLuint program;
 	int compileShader(ShaderType type, std::string& errString);
 	std::vector<std::string> expandShaderText(std::string& shaderText, ShaderType type);

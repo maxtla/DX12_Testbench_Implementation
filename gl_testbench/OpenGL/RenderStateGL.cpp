@@ -15,9 +15,12 @@ void RenderStateGL::set()
 	// was wireframe mode already set?
 	if (*globalWireFrame == _wireframe)
 		return;
+	else
+		*globalWireFrame = _wireframe;
 
-	((*globalWireFrame = _wireframe) == true) ? 
-		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE):	// change to wireframe
+	if (_wireframe)
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // change to wireframe
+	else
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);	// change to solid
 }
 
