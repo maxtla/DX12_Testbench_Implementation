@@ -1,6 +1,7 @@
 #include <string>
 #include <SDL_keyboard.h>
 #include <SDL_events.h>
+#include <SDL_timer.h>
 #include <type_traits> 
 #include <assert.h>
 
@@ -30,15 +31,33 @@ VertexBuffer* uvs;
 void updateScene();
 void renderScene();
 
+char gTitleBuff[256];
+double gLastDelta = 0.0;
+
+void updateDelta()
+{
+	#define WINDOW_SIZE 10
+	static Uint64 start = 0;
+	static Uint64 last = 0;
+	static double avg[WINDOW_SIZE] = { 0.0 };
+	static double lastSum = 10.0;
+	static int loop = 0;
+
+	last = start;
+	start = SDL_GetPerformanceCounter();
+	double deltaTime = (double)((start - last) * 1000.0 / SDL_GetPerformanceFrequency());
+	// moving average window of WINDOWS_SIZE
+	lastSum -= avg[loop];
+	lastSum += deltaTime;
+	avg[loop] = deltaTime;
+	loop = (loop + 1) % WINDOW_SIZE;
+	gLastDelta = (lastSum / WINDOW_SIZE);
+};
 
 // TOTAL_TRIS pretty much decides how many drawcalls in a brute force approach.
-constexpr int TOTAL_TRIS = 1500.0f;
-
+constexpr int TOTAL_TRIS = 100.0f;
 // this has to do with how the triangles are spread in the screen, not important.
-constexpr float DENSITY = 0.1; // [ 0.1 , 0.99 ]
-
-// If you make DENSITY too small it will use more memory here
-constexpr int TOTAL_PLACES = TOTAL_TRIS / DENSITY;
+constexpr int TOTAL_PLACES = 2 * TOTAL_TRIS;
 float xt[TOTAL_PLACES], yt[TOTAL_PLACES];
 
 // lissajous points
@@ -79,17 +98,18 @@ void updateScene()
 	{
 		static long long shift = 0;
 		const int size = scene.size();
-//		if (shift > 0) shift = 0;
 		for (int i = 0; i < size; i++)
 		{
 			const float4 trans { 
-				xt[(int)((float)(i + shift)/DENSITY) % (TOTAL_PLACES)], 
-				yt[(int)((float)(i + shift)/DENSITY) % (TOTAL_PLACES)], 
-				i * -0.01 
+				xt[(int)(float)(i + shift) % (TOTAL_PLACES)], 
+				yt[(int)(float)(i + shift) % (TOTAL_PLACES)], 
+				i * (-1.0 / TOTAL_PLACES),
+				0.0
 			};
 			scene[i]->txBuffer->setData(&trans, sizeof(trans), scene[i]->technique->getMaterial(), TRANSLATION);
 		}
-		shift+=1;
+		// just to make them move...
+		shift+=max(TOTAL_TRIS / 1000.0,TOTAL_TRIS / 100.0);
 	}
 	return;
 };
@@ -104,6 +124,9 @@ void renderScene()
 	}
 	renderer->frame();
 	renderer->present();
+	updateDelta();
+	sprintf(gTitleBuff, "OpenGL - %3.0lf", gLastDelta);
+	renderer->setWinTitle(gTitleBuff);
 }
 
 int initialiseTestbench()
@@ -255,10 +278,6 @@ void shutdown() {
 	for (auto m : scene)
 	{
 		delete(m);
-		//for (auto g : m->geometryBuffers)
-		//{
-			//delete g.second.buffer;
-		//}
 	};
 	assert(pos->refCount() == 0);
 	delete pos;

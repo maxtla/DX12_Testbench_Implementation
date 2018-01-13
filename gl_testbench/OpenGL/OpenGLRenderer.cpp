@@ -61,7 +61,6 @@ Material* OpenGLRenderer::makeMaterial(const std::string& name) {
 }
 
 Technique* OpenGLRenderer::makeTechnique(Material* m, RenderState* r) {
-	// Technique* t = new GLTechnique(m, r);
 	Technique* t = new Technique(m, r);
 	return t;
 }
@@ -170,7 +169,6 @@ void OpenGLRenderer::frame()
 			for (auto mesh : work.second)
 			{
 				size_t numberElements = mesh->geometryBuffers[0].numElements;
-				//mesh->technique->enable(this);
 				glBindTexture(GL_TEXTURE_2D, 0);
 				for (auto t : mesh->textures)
 				{
@@ -189,34 +187,14 @@ void OpenGLRenderer::frame()
 	}
 };
 
-
-Uint64 gStart = SDL_GetPerformanceCounter();
-Uint64 gLast = 0;
-char gTitleBuff[256];
-static float avg[10] = { 0.0 };
-static float lastSum = 10.0;
 void OpenGLRenderer::present()
 {
-	static int round = 0;
 	SDL_GL_SwapWindow(window);
-	gLast = gStart;
-	gStart = SDL_GetPerformanceCounter();
-
-	double deltaTime = (double)((gStart - gLast) * 1000.0 / SDL_GetPerformanceFrequency());
-
-	// moving average window of 5 numbers
-	lastSum -= avg[round];
-	lastSum += deltaTime;
-	avg[round] = deltaTime;
-	round = (round + 1) % 10;
-
-	sprintf(gTitleBuff, "OpenGL - %3.0f", lastSum / 10.0);
-	SDL_SetWindowTitle(this->window, gTitleBuff);
 };
+
 
 void OpenGLRenderer::setClearColor(float r, float g, float b, float a)
 {
-	//clearColor[0] = r; clearColor[1] = g; clearColor[2] = b; clearColor[3] = a;
 	glClearColor(r, g, b, a);
 };
 
