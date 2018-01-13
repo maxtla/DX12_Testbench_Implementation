@@ -60,27 +60,11 @@ Material* OpenGLRenderer::makeMaterial(const std::string& name) {
 	return new MaterialGL(name); 
 }
 
-/* example of subclassing technique 
-class GLTechnique : public Technique {
-public:
-	GLTechnique(Material* m, RenderState* r) : Technique(m, r) {
-
-	}
-	~GLTechnique() {
-		fprintf(stderr, "subclass destroyed");
-	}
-};
-*/
-
 Technique* OpenGLRenderer::makeTechnique(Material* m, RenderState* r) {
 	// Technique* t = new GLTechnique(m, r);
 	Technique* t = new Technique(m, r);
 	return t;
 }
-
-//ResourceBinding* OpenGLRenderer::makeResourceBinding() { 
-//	return new ResourceBindingGL(); 
-//}
 
 RenderState* OpenGLRenderer::makeRenderState() { 
 	RenderStateGL* newRS = new RenderStateGL();
@@ -90,9 +74,7 @@ RenderState* OpenGLRenderer::makeRenderState() {
 }
 
 void OpenGLRenderer::setWinTitle(const char* title) {
-
 	SDL_SetWindowTitle(this->window, title);
-
 }
 
 int OpenGLRenderer::initialize(unsigned int width, unsigned int height) {
@@ -111,11 +93,8 @@ int OpenGLRenderer::initialize(unsigned int width, unsigned int height) {
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
 
-
-
 	window = SDL_CreateWindow("OpenGL", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, SDL_WINDOW_OPENGL);
 	context = SDL_GL_CreateContext(window);
-
 
 	SDL_GL_MakeCurrent(window, context);
 
@@ -162,7 +141,7 @@ void OpenGLRenderer::submit(Mesh* mesh)
 */
 void OpenGLRenderer::frame() 
 {
-	if (!perMat) {
+	if (perMat!=1) {
 
 		for (auto mesh : drawList)
 		{
@@ -183,7 +162,6 @@ void OpenGLRenderer::frame()
 		}
 		drawList.clear();
 	}
-
 	else 
 	{
 		for (auto work : drawList2)
@@ -215,19 +193,25 @@ void OpenGLRenderer::frame()
 Uint64 gStart = SDL_GetPerformanceCounter();
 Uint64 gLast = 0;
 char gTitleBuff[256];
-static long int slowDown = 0;
+static float avg[10] = { 0.0 };
+static float lastSum = 10.0;
 void OpenGLRenderer::present()
 {
+	static int round = 0;
 	SDL_GL_SwapWindow(window);
 	gLast = gStart;
 	gStart = SDL_GetPerformanceCounter();
 
-	if (slowDown++ % 2 == 0)
-	{
-		double deltaTime = (double)((gStart - gLast) * 1000.0 / SDL_GetPerformanceFrequency());
-		sprintf(gTitleBuff, "OpenGL - %3.0f", deltaTime);
-		SDL_SetWindowTitle(this->window, gTitleBuff);
-	}
+	double deltaTime = (double)((gStart - gLast) * 1000.0 / SDL_GetPerformanceFrequency());
+
+	// moving average window of 5 numbers
+	lastSum -= avg[round];
+	lastSum += deltaTime;
+	avg[round] = deltaTime;
+	round = (round + 1) % 10;
+
+	sprintf(gTitleBuff, "OpenGL - %3.0f", lastSum / 10.0);
+	SDL_SetWindowTitle(this->window, gTitleBuff);
 };
 
 void OpenGLRenderer::setClearColor(float r, float g, float b, float a)

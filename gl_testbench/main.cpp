@@ -35,11 +35,11 @@ void renderScene();
 constexpr int TOTAL_TRIS = 1500.0f;
 
 // this has to do with how the triangles are spread in the screen, not important.
-constexpr float DENSITY = 0.5; // [ 0.1 , 0.99 ]
+constexpr float DENSITY = 0.1; // [ 0.1 , 0.99 ]
 
 // If you make DENSITY too small it will use more memory here
 constexpr int TOTAL_PLACES = TOTAL_TRIS / DENSITY;
-float xt[TOTAL_PLACES], yt[TOTAL_PLACES], zt[TOTAL_PLACES];
+float xt[TOTAL_PLACES], yt[TOTAL_PLACES];
 
 // lissajous points
 typedef union { 
@@ -76,34 +76,20 @@ void updateScene()
 	/*
 	    For each mesh in scene list, update their position 
 	*/
-	static int slowDown = 0;
-	static int speed = 1;
-
-	if (slowDown++ % 1000 == 0)
 	{
-
-		float translation[4] = { 0.0,0.0,0.0,0.0 };
-		static int shift = 0;
-
-		float scale = 1.0;
-		translation[0] = xt[(0+shift) % (TOTAL_PLACES)];
-		translation[1] = yt[(0+shift) % (TOTAL_PLACES)];
-		translation[2] = 0.0;
-
-		Mesh* const m0 = scene[0];
-		m0->txBuffer->setData( translation, sizeof(translation), m0->technique->getMaterial(), TRANSLATION);
-
-		for (int i = 1; i < scene.size(); i++)
+		static long long shift = 0;
+		const int size = scene.size();
+//		if (shift > 0) shift = 0;
+		for (int i = 0; i < size; i++)
 		{
-			translation[0] = xt[(i+shift) % (TOTAL_PLACES)];
-			translation[1] = yt[(i+shift) % (TOTAL_PLACES)];
-			translation[2] = -0.01 * i;
-
-			// updates the buffer data (when function returns, data from translation can be reused)
-			Mesh* mn = scene[i];
-			mn->txBuffer->setData( translation, sizeof(translation), mn->technique->getMaterial(), TRANSLATION);
+			const float4 trans { 
+				xt[(int)((float)(i + shift)/DENSITY) % (TOTAL_PLACES)], 
+				yt[(int)((float)(i + shift)/DENSITY) % (TOTAL_PLACES)], 
+				i * -0.01 
+			};
+			scene[i]->txBuffer->setData(&trans, sizeof(trans), scene[i]->technique->getMaterial(), TRANSLATION);
 		}
-		shift+=speed;
+		shift+=1;
 	}
 	return;
 };
@@ -156,9 +142,8 @@ int initialiseTestbench()
 	float scale = (float)TOTAL_PLACES / 359.9;
 	for (int a = 0; a < TOTAL_PLACES; a++)
 	{
-		xt[a] = 0.8f * cosf(degToRad * ((float)a*scale) * 3.0);
-		yt[a] = 0.8f * sinf(degToRad * ((float)a*scale) * 2.0);
-		zt[a] = -0.01 * a;
+		xt[a] = 0.8f * cosf(degToRad * ((float)a/scale) * 3.0);
+		yt[a] = 0.8f * sinf(degToRad * ((float)a/scale) * 2.0);
 	};
 
 	// triangle geometry:
