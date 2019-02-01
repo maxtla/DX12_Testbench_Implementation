@@ -3,6 +3,10 @@
 #include "../Renderer.h"
 
 #include <SDL.h>
+#include <d3d12.h>
+#include <dxgi1_5.h>
+#include <comdef.h>
+#include <tchar.h>
 
 class DX_12Renderer : public Renderer
 {
@@ -37,11 +41,45 @@ public:
 
 private:
 	SDL_Window * window;
+	HWND wHnd = NULL;
 	//TODO: Add all relevant D3D components here
+	//D3D12 Debug
+	ID3D12Debug* m_debugController = NULL;
+	//D3D12
+	ID3D12Device* m_device = NULL;
+
+
 
 	std::vector<Mesh*> drawList;
 	std::unordered_map<Technique*, std::vector<Mesh*>> drawList2;
 
 	bool globalWireframeMode = false;
 	float clearColor[4] = { 0,0,0,0 };
+
+private:
+	//private functions for code seperation
+
+	//The factory is created in this function, if it is not already
+	IDXGIAdapter1 * _findDX12Adapter(IDXGIFactory5 * factory);
+	HRESULT _createDevice(IDXGIFactory5 ** ppFactory, IDXGIAdapter1 ** ppAdapter);
 };
+
+//Since no default SafeRelease function is included in D3D12.h
+//and I do not want to have include the ComPtr header to soley access theirs
+//I decided to write their implementation directly in my header inlined
+template <class T> inline void SafeRelease(T **ppT)
+{
+	if (*ppT)
+	{
+		(*ppT)->Release();
+		*ppT = NULL;
+	}
+}
+
+static void PostMessageBoxOnError(HRESULT hr, TCHAR* info, TCHAR* caption, UINT type, HWND hWnd)
+{
+	_com_error err(hr);
+	TCHAR message[64]; //buffer to write to when concatenating the TCHAR strings
+	_stprintf(message, _T("%s%s"), info, err.ErrorMessage());
+	MessageBoxW(hWnd, message, caption, MB_OK | type);
+}
