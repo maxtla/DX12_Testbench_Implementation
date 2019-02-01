@@ -10,7 +10,3 @@ Debug*
 x64*
 *.opendb
 /uml.png
-
-*.log
-
-gl_testbench/main\.cpp
