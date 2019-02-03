@@ -76,7 +76,7 @@ private:
 	//private functions for code seperation
 	void WaitForGPU();
 	//The factory is created in this function, if it is not already
-	IDXGIAdapter1 * _findDX12Adapter(IDXGIFactory5 ** factory);
+	IDXGIAdapter1 * _findDX12Adapter(IDXGIFactory5 ** ppFactory);
 	HRESULT _createDevice(IDXGIFactory5 ** ppFactory, IDXGIAdapter1 ** ppAdapter);
 	HRESULT _createCommandQueue();
 	HRESULT _createCmdAllocatorAndList();

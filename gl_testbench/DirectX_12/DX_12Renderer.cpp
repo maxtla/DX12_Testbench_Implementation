@@ -189,19 +189,19 @@ void DX_12Renderer::WaitForGPU()
 	}
 }
 
-IDXGIAdapter1 * DX_12Renderer::_findDX12Adapter(IDXGIFactory5 ** factory)
+IDXGIAdapter1 * DX_12Renderer::_findDX12Adapter(IDXGIFactory5 ** ppFactory)
 {
 	IDXGIAdapter1 * adapter		= NULL;
 
 	//Create the factory and iterate through adapters, find and return the first adapter that supports DX12
-	if (!*factory)
-		CreateDXGIFactory(IID_PPV_ARGS(factory));
-	assert(*factory);
+	if (!*ppFactory)
+		CreateDXGIFactory(IID_PPV_ARGS(ppFactory));
+	assert(*ppFactory);
 
 	for (UINT index = 0;; ++index)
 	{
 		adapter = NULL;
-		if (DXGI_ERROR_NOT_FOUND == (*factory)->EnumAdapters1(index, &adapter))
+		if (DXGI_ERROR_NOT_FOUND == (*ppFactory)->EnumAdapters1(index, &adapter))
 			break;
 		if (SUCCEEDED(D3D12CreateDevice(adapter, D3D_FEATURE_LEVEL_12_1, __uuidof(ID3D12Device), nullptr)))
 			break;
