@@ -5,7 +5,6 @@
 #include "DX_12Renderer.h"
 #include <assert.h>
 
-
 DX_12Renderer::DX_12Renderer()
 {
 }

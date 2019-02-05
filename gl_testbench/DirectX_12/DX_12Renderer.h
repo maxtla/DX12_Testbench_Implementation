@@ -7,6 +7,7 @@
 #include <dxgi1_5.h>
 #include <comdef.h>
 #include <tchar.h>
+#include "DX_12VertexBuffer.h"
 
 class DX_12Renderer : public Renderer
 {
@@ -48,7 +49,7 @@ private:
 	//D3D12 Debug														    
 	ID3D12Debug* m_debugController						    = NULL;
 	//D3D12/Pipeline objects										    
-	ID3D12Device* m_device										    = NULL;
+	ID3D12Device* m_device										 = NULL;
 	ID3D12CommandQueue* m_commandQueue		    = NULL;
 	ID3D12CommandAllocator * m_commandAllocator	= NULL;
 	IDXGISwapChain3* m_swapChain								= NULL;
