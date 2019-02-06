@@ -19,7 +19,6 @@ public:
 	// OPENGL HANDLE
 	//GLuint textureHandle = 0;
 	ID3D12Resource* _texture = nullptr;
-	ID3D12Resource* _textureUploadHeap = nullptr;
 	ID3D12DescriptorHeap* _srvHeap = nullptr;
 
 	DX_12Renderer* _renderer = nullptr;

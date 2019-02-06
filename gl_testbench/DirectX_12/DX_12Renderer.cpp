@@ -5,6 +5,8 @@
 #include "DX_12Renderer.h"
 #include <assert.h>
 #include "DX_12VertexBuffer.h"
+#include "DX_12Texture2D.h"
+#include "DX_12Sampler2D.h"
 
 DX_12Renderer::DX_12Renderer()
 {
@@ -46,12 +48,12 @@ Technique * DX_12Renderer::makeTechnique(Material * m, RenderState * r)
 
 Texture2D * DX_12Renderer::makeTexture2D()
 {
-	return nullptr;
+	return new DX_12Texture2D(this);
 }
 
 Sampler2D * DX_12Renderer::makeSampler2D()
 {
-	return nullptr;
+	return new DX_12Sampler2D(this);
 }
 
 std::string DX_12Renderer::getShaderPath()
