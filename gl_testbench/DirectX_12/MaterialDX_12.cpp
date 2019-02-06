@@ -97,6 +97,8 @@ int MaterialDX_12::compileMaterial(std::string & errString)
 		return -1;
 	}
 
+	// Create PSO here?
+
 	return 0;
 }
 

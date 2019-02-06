@@ -191,4 +191,8 @@
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="..\assets\DX12\FragmentShader.hlsl" />
+    <FxCompile Include="..\assets\DX12\VertexShader.hlsl" />
+  </ItemGroup>
 </Project>
