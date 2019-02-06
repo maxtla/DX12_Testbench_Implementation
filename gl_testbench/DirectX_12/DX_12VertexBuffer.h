@@ -21,6 +21,6 @@ public:
 
 private:
 	size_t totalSize;
-	ID3D12Resource* _vertexBuffer;
+	ID3D12Resource* _vertexBuffer = nullptr;
 	D3D12_VERTEX_BUFFER_VIEW _vertexBuffer_View;
 };

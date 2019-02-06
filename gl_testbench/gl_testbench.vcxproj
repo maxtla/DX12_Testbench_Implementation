@@ -183,6 +183,7 @@
   <ItemGroup>
     <ClInclude Include="..\include\stb_image.h" />
     <ClInclude Include="ConstantBuffer.h" />
+    <ClInclude Include="DirectX_12\d3dx12.h" />
     <ClInclude Include="DirectX_12\DX_12Renderer.h" />
     <ClInclude Include="DirectX_12\DX_12Sampler2D.h" />
     <ClInclude Include="DirectX_12\DX_12Texture2D.h" />
