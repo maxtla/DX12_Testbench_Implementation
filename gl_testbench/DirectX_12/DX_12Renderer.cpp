@@ -56,12 +56,12 @@ Sampler2D * DX_12Renderer::makeSampler2D()
 
 std::string DX_12Renderer::getShaderPath()
 {
-	return std::string();
+	return std::string("..\\assets\\DX12\\");
 }
 
 std::string DX_12Renderer::getShaderExtension()
 {
-	return std::string();
+	return std::string(".hlsl");
 }
 
 int DX_12Renderer::initialize(unsigned int width, unsigned int height)
@@ -100,44 +100,66 @@ int DX_12Renderer::initialize(unsigned int width, unsigned int height)
 		PostMessageBoxOnError(hr, L"Unable to create DX12 Device: ", L"Fatal error", MB_ICONERROR, wHnd);
 		exit(-1);
 	}
-
+	//create command queue
 	hr = _createCommandQueue();
 	if (FAILED(hr))
 	{
 		PostMessageBoxOnError(hr, L"Unable to create DX12 Command Queue: ", L"Fatal error", MB_ICONERROR, wHnd);
 		exit(-1);
 	}
-
+	//create command allocator and command list
 	hr = _createCmdAllocatorAndList();
 	if (FAILED(hr))
 	{
 		PostMessageBoxOnError(hr, L"Error in _createCmdAllocatorAndList function: ", L"Fatal error", MB_ICONERROR, wHnd);
 		exit(-1);
 	}
-
+	//create the swapchain
 	hr = _createSwapChain(width, height, &factory);
 	if (FAILED(hr))
 	{
 		PostMessageBoxOnError(hr, L"Failed to create Swapchain: ", L"Fatal error", MB_ICONERROR, wHnd);
 		exit(-1);
 	}
-
+	//create the render targets
 	hr = _createRenderTargets();
 	if (FAILED(hr))
 	{
 		PostMessageBoxOnError(hr, L"Failed to create Render Targets: ", L"Fatal error", MB_ICONERROR, wHnd);
 		exit(-1);
 	}
-
+	//create the fence
 	hr = _createFence();
 	if (FAILED(hr))
 	{
 		PostMessageBoxOnError(hr, L"Failed to create Fence: ", L"Fatal error", MB_ICONERROR, wHnd);
 		exit(-1);
 	}
+	//create the root signature
+	hr = _createRootSignature();
+	if (FAILED(hr))
+	{
+		PostMessageBoxOnError(hr, L"Failed to create Root Signature: ", L"Fatal error", MB_ICONERROR, wHnd);
+		exit(-1);
+	}
 	//Release objects that are no longer needed
 	SafeRelease(&factory);
 	SafeRelease(&adapter);
+
+	//Define the viewport and scissor rect
+	{
+		this->m_viewPort.TopLeftX		= 0.f;
+		this->m_viewPort.TopLeftY		= 0.f;
+		this->m_viewPort.MinDepth	= 0.f;
+		this->m_viewPort.MaxDepth	= 1.f;
+		this->m_viewPort.Width			= (float)width;
+		this->m_viewPort.Height			= (float)height;
+
+		this->m_scissorRect.left			= (long)this->m_viewPort.TopLeftX;
+		this->m_scissorRect.top			= (long)this->m_viewPort.TopLeftY;
+		this->m_scissorRect.right		= (long)this->m_viewPort.Width;
+		this->m_scissorRect.bottom	= (long)this->m_viewPort.Height;
+	}
 
 	return 0;
 }
@@ -152,8 +174,9 @@ int DX_12Renderer::shutdown()
 	return 0;
 }
 
-void DX_12Renderer::setClearColor(float, float, float, float)
+void DX_12Renderer::setClearColor(float r, float g, float b, float a)
 {
+	clearColor[0] = r; clearColor[1] = g; clearColor[2] = b; clearColor[3] = a;
 }
 
 void DX_12Renderer::clearBuffer(unsigned int)
@@ -170,13 +193,23 @@ void DX_12Renderer::submit(Mesh * mesh)
 
 void DX_12Renderer::frame()
 {
+	//clearColor[0] = float(rand() % 256) / 255.f; //just for basic testing
+	this->PopulateCommandList();
+	ID3D12CommandList* listsToExecute[] = { m_commandList };
+	m_commandQueue->ExecuteCommandLists(_ARRAYSIZE(listsToExecute), listsToExecute);
 }
 
 void DX_12Renderer::present()
 {
+	DXGI_PRESENT_PARAMETERS pp = {};
+	m_swapChain->Present1(0, 0, &pp);
+
+	this->WaitForGPU();
+
+	m_frameIndex = (m_frameIndex + 1) % FRAME_COUNT;
 }
 
-void DX_12Renderer::WaitForGPU()
+inline void DX_12Renderer::WaitForGPU()
 {
 	const UINT64 fence = m_fenceValue;
 	m_commandQueue->Signal(m_fence, fence);
@@ -187,6 +220,58 @@ void DX_12Renderer::WaitForGPU()
 		m_fence->SetEventOnCompletion(fence, m_fenceEvent);
 		WaitForSingleObject(m_fenceEvent, INFINITE);
 	}
+}
+
+inline void DX_12Renderer::PopulateCommandList()
+{
+	//get the handle for the current render target as backbuffer
+	D3D12_CPU_DESCRIPTOR_HANDLE cdh = m_rtvDescHeap->GetCPUDescriptorHandleForHeapStart();
+	cdh.ptr += m_rtvDescSize * m_frameIndex;
+
+	//Taken mostly from MSDN guide for basic dx12 component
+
+	// Command list allocators can only be reset when the associated 
+	// command lists have finished execution on the GPU; apps should use 
+	// fences to determine GPU execution progress.
+	ThrowIfFailed(this->m_commandAllocator->Reset());
+
+	// However, when ExecuteCommandList() is called on a particular command 
+	// list, that command list can then be reset at any time and must be before 
+	// re-recording.
+	ThrowIfFailed(m_commandList->Reset(m_commandAllocator, nullptr)); //we have no pipeline state object yet
+
+	 // Set necessary state.
+	m_commandList->SetGraphicsRootSignature(m_rootSignature);
+	m_commandList->RSSetViewports(1, &m_viewPort);
+	m_commandList->RSSetScissorRects(1, &m_scissorRect);
+
+	// Indicate that the back buffer will be used as a render target.
+	SetResourceTransitionBarrier(D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
+
+	// Record commands.
+	m_commandList->OMSetRenderTargets(1, &cdh, TRUE, nullptr);
+	m_commandList->ClearRenderTargetView(cdh, clearColor, 0, nullptr);
+
+	//Iterate through Mesh lists now?
+
+	// Indicate that the back buffer will now be used to present.
+	SetResourceTransitionBarrier(D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
+
+	//close the list to prepare it for execution
+	ThrowIfFailed(m_commandList->Close());
+}
+
+inline void DX_12Renderer::SetResourceTransitionBarrier(D3D12_RESOURCE_STATES beforeState, D3D12_RESOURCE_STATES afterState)
+{
+	D3D12_RESOURCE_BARRIER barrierDesc = {};
+
+	barrierDesc.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+	barrierDesc.Transition.pResource = m_renderTargets[m_frameIndex];
+	barrierDesc.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+	barrierDesc.Transition.StateBefore = beforeState;
+	barrierDesc.Transition.StateAfter = afterState;
+
+	m_commandList->ResourceBarrier(1, &barrierDesc);
 }
 
 IDXGIAdapter1 * DX_12Renderer::_findDX12Adapter(IDXGIFactory5 ** ppFactory)
@@ -333,4 +418,76 @@ HRESULT DX_12Renderer::_createFence()
 	m_fenceEvent = CreateEvent(0, false, false, 0);
 
 	return hr;
+}
+
+HRESULT DX_12Renderer::_createRootSignature()
+{
+	HRESULT hr = E_FAIL;
+
+	//Important things to identify: 
+	// 1. How many root constants does this program need? (1 DWORD, 0 indirections)
+	// 2. How many Root Descriptors does this program need/have (CBV, SRV, UAV)? (2 DWORDs, 1 indirection)
+	// 3. How many Descriptor Tables do we need/want? (1 DWORD, 2 indirections)
+	// 4. How many DWORDs did we use (Max size of 64, or 63 with enabled IA)
+
+	unsigned int DWORD_COUNT = 0;
+	//Start with defining descriptor ranges
+	D3D12_DESCRIPTOR_RANGE descRanges[1]; //Lets start with one
+	{
+		//1 CBV descriptor = 2 DWORDs
+		{	
+			descRanges[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
+			descRanges[0].NumDescriptors = 1; //Only assmuing one ConstantBuffer so far
+			descRanges[0].BaseShaderRegister = 0; // register b0
+			descRanges[0].RegisterSpace = 0; //register(b0, space0);
+			descRanges[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+
+			DWORD_COUNT += 2;
+		}
+	}
+	//Create necessary Descriptor Tables
+	D3D12_ROOT_DESCRIPTOR_TABLE descTables[1]; //Only need one so far
+	{
+		//1 Descriptor Table for the CBV descriptor = 1 DWORD
+		{
+			descTables[0].NumDescriptorRanges = _ARRAYSIZE(descRanges); //how many descriptors for this table
+			descTables[0].pDescriptorRanges = &descRanges[0]; //pointer to descriptor array
+
+			DWORD_COUNT += 1;
+		}
+	}
+
+	//Create the root parameters (basically define the root table structure)
+	D3D12_ROOT_PARAMETER rootParams[1]; //We only have defined one element to insert (Descriptor table)
+	{
+		// [0] - Descriptor table for CBV descriptor
+		{
+			rootParams[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE; //What type is the entry?
+			rootParams[0].DescriptorTable = descTables[0]; //Which desc table?
+			rootParams[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX; //Which shader stages can access this entry? 
+		}
+	}
+
+	//Create the descriptions of the root signature
+	D3D12_ROOT_SIGNATURE_DESC rsDesc;
+	{
+		rsDesc.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT; //IA enabled = max 63 DWORDs
+		rsDesc.NumParameters = _ARRAYSIZE(rootParams); //How many entries?
+		rsDesc.pParameters = rootParams; //Pointer to array of table entries
+		rsDesc.NumStaticSamplers = 0;  //No static samplers were defined
+		rsDesc.pStaticSamplers = NULL; //No static samplers were defined
+	}
+
+	//Serialize the root signature (no error blob)
+	ID3DBlob * pSerBlob = NULL;
+	D3D12SerializeRootSignature(
+		&rsDesc,
+		D3D_ROOT_SIGNATURE_VERSION_1,
+		&pSerBlob,
+		nullptr
+	);
+
+	//Use d3d12 device to create the root signature
+	UINT nodeMask = 0;
+	return this->m_device->CreateRootSignature(nodeMask, pSerBlob->GetBufferPointer(), pSerBlob->GetBufferSize(), IID_PPV_ARGS(&this->m_rootSignature));
 }
