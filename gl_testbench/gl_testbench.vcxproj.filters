@@ -93,6 +93,12 @@
     <ClCompile Include="DirectX_12\DX_12Renderer.cpp">
       <Filter>Source Files\DirectX_12</Filter>
     </ClCompile>
+    <ClCompile Include="DirectX_12\ConstantBufferDX_12.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DirectX_12\MaterialDX_12.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Renderer.h">
@@ -170,11 +176,11 @@
     <ClInclude Include="DirectX_12\DX_12Renderer.h">
       <Filter>Source Files\DirectX_12</Filter>
     </ClInclude>
-    <ClInclude Include="MaterialDX_12.h">
-      <Filter>Source Files\DirectX_12</Filter>
+    <ClInclude Include="DirectX_12\ConstantBufferDX_12.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ConstantBufferDX_12.h">
-      <Filter>Source Files\DirectX_12</Filter>
+    <ClInclude Include="DirectX_12\MaterialDX_12.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
