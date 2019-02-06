@@ -4,6 +4,7 @@
 
 #include "DX_12Renderer.h"
 #include <assert.h>
+#include "DX_12VertexBuffer.h"
 
 DX_12Renderer::DX_12Renderer()
 {
@@ -25,7 +26,7 @@ Mesh * DX_12Renderer::makeMesh()
 
 VertexBuffer * DX_12Renderer::makeVertexBuffer(size_t size, VertexBuffer::DATA_USAGE usage)
 {
-	return nullptr;
+	return new DX_12VertexBuffer(this, size, usage);
 }
 
 ConstantBuffer * DX_12Renderer::makeConstantBuffer(std::string NAME, unsigned int location)

@@ -7,10 +7,12 @@
 #include <dxgi1_5.h>
 #include <comdef.h>
 #include <tchar.h>
-#include "DX_12VertexBuffer.h"
+
+class DX_12VertexBuffer;
 
 class DX_12Renderer : public Renderer
 {
+	friend class DX_12VertexBuffer;
 public:
 	DX_12Renderer();
 	~DX_12Renderer();

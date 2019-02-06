@@ -9,7 +9,7 @@ class DX_12VertexBuffer :
 {
 public:
 
-	DX_12VertexBuffer(size_t size, VertexBuffer::DATA_USAGE usage);
+	DX_12VertexBuffer(DX_12Renderer* renderer, size_t size, VertexBuffer::DATA_USAGE usage);
 	~DX_12VertexBuffer();
 
 	void setData(const void* data, size_t size, size_t offset);
@@ -23,5 +23,4 @@ private:
 	size_t totalSize;
 	ID3D12Resource* _vertexBuffer;
 	D3D12_VERTEX_BUFFER_VIEW _vertexBuffer_View;
-	//GLuint _handle;
 };

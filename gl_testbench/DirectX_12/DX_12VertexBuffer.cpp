@@ -3,7 +3,7 @@
 
 D3D12_HEAP_TYPE DX_12VertexBuffer::usageMapping[3] = { D3D12_HEAP_TYPE_UPLOAD, D3D12_HEAP_TYPE_READBACK, D3D12_HEAP_TYPE_DEFAULT };
 
-DX_12VertexBuffer::DX_12VertexBuffer(size_t size, VertexBuffer::DATA_USAGE usage)
+DX_12VertexBuffer::DX_12VertexBuffer(DX_12Renderer* renderer, size_t size, VertexBuffer::DATA_USAGE usage)
 {
 	totalSize = size;
 	
@@ -23,7 +23,7 @@ DX_12VertexBuffer::DX_12VertexBuffer(size_t size, VertexBuffer::DATA_USAGE usage
 
 	//Creates both a resource and an implicit heap, such that the heap is big enough
 	//to contain the entire resource and the resource is mapped to the heap.
-	m_device->CreateCommittedResource(
+	renderer->m_device->CreateCommittedResource(
 		&hp,
 		D3D12_HEAP_FLAG_NONE,
 		&rd,
@@ -47,7 +47,7 @@ void DX_12VertexBuffer::setData(const void * data, size_t size, size_t offset)
 	void* dataBegin = nullptr;
 	D3D12_RANGE range = { 0, 0 }; //We do not intend to read this resource on the CPU.
 	_vertexBuffer->Map(0, &range, &dataBegin);
-	memcpy(dataBegin, data, sizeof(data));
+	memcpy(((char*)dataBegin) + offset, data, sizeof(data));
 	_vertexBuffer->Unmap(0, nullptr);
 
 	//Initialize vertex buffer view, used in the render call.
