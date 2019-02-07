@@ -61,7 +61,9 @@ private:
 	IDXGISwapChain3* m_swapChain								= NULL;
 	ID3D12DescriptorHeap* m_rtvDescHeap				    = NULL;
 	ID3D12Resource* m_renderTargets[FRAME_COUNT]	= { NULL, NULL };
-	//ID3D12RootSignature* m_rootSignature					= NULL; //I think this should be elsewhere
+	D3D12_VIEWPORT m_viewPort	                                = {};
+	D3D12_RECT m_scissorRect                                        = {};
+	ID3D12RootSignature* m_rootSignature					= NULL;
 	//ID3D12PipelineState* m_pipelineState                       = NULL; //I think this should be elsewhere 
 	ID3D12GraphicsCommandList* m_commandList       = NULL;
 	UINT m_rtvDescSize													= 0;
@@ -81,7 +83,10 @@ private:
 
 private:
 	//private functions for code seperation
-	void WaitForGPU();
+	//I am using inline here because I want to avoid the function call overhead on per-frame helper functions
+	inline void WaitForGPU();
+	inline void PopulateCommandList();
+	inline void SetResourceTransitionBarrier(D3D12_RESOURCE_STATES beforeState, D3D12_RESOURCE_STATES afterState);
 	//The factory is created in this function, if it is not already
 	IDXGIAdapter1 * _findDX12Adapter(IDXGIFactory5 ** ppFactory);
 	HRESULT _createDevice(IDXGIFactory5 ** ppFactory, IDXGIAdapter1 ** ppAdapter);
@@ -90,6 +95,7 @@ private:
 	HRESULT _createSwapChain(unsigned int width, unsigned int height, IDXGIFactory5 ** ppFactory);
 	HRESULT _createRenderTargets();
 	HRESULT _createFence();
+	HRESULT _createRootSignature();
 };
 
 //Since no default SafeRelease function is included in D3D12.h
@@ -101,6 +107,14 @@ template <class T> inline void SafeRelease(T **ppT)
 	{
 		(*ppT)->Release();
 		*ppT = NULL;
+	}
+}
+
+static inline void ThrowIfFailed(HRESULT hr)
+{
+	if (FAILED(hr))
+	{
+		throw std::exception();
 	}
 }
 
