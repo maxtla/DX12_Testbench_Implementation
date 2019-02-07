@@ -13,8 +13,8 @@ ConstantBufferDX_12::ConstantBufferDX_12(std::string NAME, unsigned int location
 	gDevice->CreateDescriptorHeap(&heapDescriptorDesc, IID_PPV_ARGS(&gDescriptorHeap));
 
 	// Not sure if this is correct
-	// Trying to achieve 128-byte aligned CB
-	UINT cbSizeAligned = (sizeof(ConstantBuffer) + 127) & ~127;
+	// Trying to achieve 256-byte aligned CB
+	UINT cbSizeAligned = (sizeof(ConstantBuffer) + 255) & ~255;
 
 	D3D12_HEAP_PROPERTIES heapProperties = {};
 	heapProperties.Type = D3D12_HEAP_TYPE_UPLOAD;
