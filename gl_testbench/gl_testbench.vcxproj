@@ -71,7 +71,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>..\include;D:\francholi\source\gl_testbench\SDL\include;$(IncludePath)</IncludePath>
+    <IncludePath>..\include;$(SolutionDir)\SDL\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
@@ -153,7 +153,9 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="ConstantBuffer.cpp" />
+    <ClCompile Include="DirectX_12\ConstantBufferDX_12.cpp" />
     <ClCompile Include="DirectX_12\DX_12Renderer.cpp" />
+    <ClCompile Include="DirectX_12\MaterialDX_12.cpp" />
     <ClCompile Include="DirectX_12\DX_12Sampler2D.cpp" />
     <ClCompile Include="DirectX_12\DX_12Texture2D.cpp" />
     <ClCompile Include="DirectX_12\DX_12VertexBuffer.cpp" />
@@ -184,10 +186,12 @@
     <ClInclude Include="..\include\stb_image.h" />
     <ClInclude Include="ConstantBuffer.h" />
     <ClInclude Include="DirectX_12\d3dx12.h" />
+    <ClInclude Include="DirectX_12\ConstantBufferDX_12.h" />
     <ClInclude Include="DirectX_12\DX_12Renderer.h" />
     <ClInclude Include="DirectX_12\DX_12Sampler2D.h" />
     <ClInclude Include="DirectX_12\DX_12Texture2D.h" />
     <ClInclude Include="DirectX_12\DX_12VertexBuffer.h" />
+    <ClInclude Include="DirectX_12\MaterialDX_12.h" />
     <ClInclude Include="OpenGL\ConstantBufferGL.h" />
     <ClInclude Include="OpenGL\MaterialGL.h" />
     <ClInclude Include="OpenGL\MeshGL.h" />
@@ -214,6 +218,19 @@
   <ItemGroup>
     <None Include="..\assets\GL45\FragmentShader.glsl" />
     <None Include="..\assets\GL45\VertexShader.glsl" />
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="..\assets\DX12\FragmentShader.hlsl">
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">PS_main</EntryPointName>
+      <FileType>Document</FileType>
+    </FxCompile>
+    <FxCompile Include="..\assets\DX12\VertexShader.hlsl">
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">VS_main</EntryPointName>
+      <FileType>Document</FileType>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+    </FxCompile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
