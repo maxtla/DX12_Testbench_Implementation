@@ -8,8 +8,15 @@
 #include <comdef.h>
 #include <tchar.h>
 
+class DX_12VertexBuffer;
+class DX_12Texture2D;
+class DX_12Sampler2D;
+
 class DX_12Renderer : public Renderer
 {
+	friend class DX_12VertexBuffer;
+	friend class DX_12Texture2D;
+	friend class DX_12Sampler2D;
 public:
 	DX_12Renderer();
 	~DX_12Renderer();
@@ -48,7 +55,7 @@ private:
 	//D3D12 Debug														    
 	ID3D12Debug* m_debugController						    = NULL;
 	//D3D12/Pipeline objects										    
-	ID3D12Device* m_device										    = NULL;
+	ID3D12Device* m_device										 = NULL;
 	ID3D12CommandQueue* m_commandQueue		    = NULL;
 	ID3D12CommandAllocator * m_commandAllocator	= NULL;
 	IDXGISwapChain3* m_swapChain								= NULL;
