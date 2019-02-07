@@ -72,5 +72,5 @@ void ConstantBufferDX_12::setData(const void* data, size_t size, Material* m, un
 
 void ConstantBufferDX_12::bind(Material* m)
 {
-	
+	// CommandList SetDescriptorHeaps ?
 }
