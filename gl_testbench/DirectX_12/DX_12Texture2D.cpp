@@ -6,17 +6,17 @@ DX_12Texture2D::DX_12Texture2D(DX_12Renderer* renderer) : _renderer(renderer)
 {
 	// Describe and create a shader resource view (srv) heap for the texture
 	// do not know where to put this
-	D3D12_DESCRIPTOR_HEAP_DESC srvHeapDesc = {};
+	/*D3D12_DESCRIPTOR_HEAP_DESC srvHeapDesc = {};
 	srvHeapDesc.NumDescriptors = 1;
 	srvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
 	srvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
-	renderer->m_device->CreateDescriptorHeap(&srvHeapDesc, IID_PPV_ARGS(&_srvHeap));
+	renderer->m_device->CreateDescriptorHeap(&srvHeapDesc, IID_PPV_ARGS(&_srvHeap));*/
 }
 
 DX_12Texture2D::~DX_12Texture2D()
 {
-	SafeRelease(&_texture);
-	SafeRelease(&_srvHeap);
+	SafeRelease(&_texture);/*
+	SafeRelease(&_srvHeap);*/
 }
 
 int DX_12Texture2D::loadFromFile(std::string filename)
@@ -88,28 +88,28 @@ int DX_12Texture2D::loadFromFile(std::string filename)
 		_renderer->m_device->CreateShaderResourceView(_texture, &srvDesc, _srvHeap->GetCPUDescriptorHandleForHeapStart());
 	}
 
-	// Close the command list and execute it to begin the initial GPU setup.
-	_renderer->m_commandList->Close();
-	ID3D12CommandList* ppCommandLists[] = { _renderer->m_commandList };
-	_renderer->m_commandQueue->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
+	//// Close the command list and execute it to begin the initial GPU setup.
+	//_renderer->m_commandList->Close();
+	//ID3D12CommandList* ppCommandLists[] = { _renderer->m_commandList };
+	//_renderer->m_commandQueue->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
 
-	// Create synchronization objects and wait until assets have been uploaded to the GPU.
-	{
-		_renderer->m_device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&_renderer->m_fence));
-		_renderer->m_fenceValue = 1;
+	//// Create synchronization objects and wait until assets have been uploaded to the GPU.
+	//{
+	//	_renderer->m_device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&_renderer->m_fence));
+	//	_renderer->m_fenceValue = 1;
 
-		// Create an event handle to use for frame synchronization.
-		_renderer->m_fenceEvent = CreateEvent(nullptr, FALSE, FALSE, nullptr);
-		if (_renderer->m_fenceEvent == nullptr)
-		{
-			// Error
-		}
+	//	// Create an event handle to use for frame synchronization.
+	//	_renderer->m_fenceEvent = CreateEvent(nullptr, FALSE, FALSE, nullptr);
+	//	if (_renderer->m_fenceEvent == nullptr)
+	//	{
+	//		// Error
+	//	}
 
-		// Wait for the command list to execute; we are reusing the same command 
-		// list in our main loop but for now, we just want to wait for setup to 
-		// complete before continuing.
-		_renderer->WaitForGPU();
-	}
+	//	// Wait for the command list to execute; we are reusing the same command 
+	//	// list in our main loop but for now, we just want to wait for setup to 
+	//	// complete before continuing.
+	//	_renderer->WaitForGPU();
+	//}
 
 	SafeRelease(&_textureUploadHeap);
 
