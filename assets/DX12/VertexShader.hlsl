@@ -5,14 +5,14 @@ struct VS_IN
 
 struct VS_OUT
 {
-	float4 pos : SV_POSITION;
+	float4 _pos : SV_POSITION;
 };
 
 VS_OUT VS_main(VS_IN input)
 {
 	VS_OUT output;
 
-	output.pos = input.pos;
+	output._pos = input.pos;
 
 	return output;
 };
