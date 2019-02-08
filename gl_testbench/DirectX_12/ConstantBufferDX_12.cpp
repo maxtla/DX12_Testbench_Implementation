@@ -52,8 +52,8 @@ ConstantBufferDX_12::ConstantBufferDX_12(std::string NAME, unsigned int location
 
 ConstantBufferDX_12::~ConstantBufferDX_12()
 {
-	SafeRelease(&gDescriptorHeap);
-	SafeRelease(&gConstantBufferResource);
+	/*SafeRelease(&gDescriptorHeap);
+	SafeRelease(&gConstantBufferResource);*/
 }
 
 void ConstantBufferDX_12::setData(const void* data, size_t size, Material* m, unsigned int location)

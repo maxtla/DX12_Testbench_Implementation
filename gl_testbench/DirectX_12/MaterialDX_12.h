@@ -4,12 +4,8 @@
 #include "ConstantBufferDX_12.h"
 #include <d3dcommon.h>
 
-class DX_12Renderer;
-
 class MaterialDX_12 : public Material
 {
-	friend DX_12Renderer;
-
 public:
 	MaterialDX_12(const std::string& name);
 	~MaterialDX_12();
@@ -50,9 +46,9 @@ public:
 
 private:
 	std::string name;
-	D3D_SHADER_MACRO* VS_Macros;
-	D3D_SHADER_MACRO* PS_Macros;
+	D3D_SHADER_MACRO* VS_Macros = NULL;
+	D3D_SHADER_MACRO* PS_Macros = NULL;
 
 private:
-	void _findMacros(ShaderType type, D3D_SHADER_MACRO* macros);
+	void _findMacros(ShaderType type, D3D_SHADER_MACRO** macros);
 };
