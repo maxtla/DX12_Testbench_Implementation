@@ -19,11 +19,11 @@ private:
 	ID3D12Resource1* gConstantBufferResource = {};
 };
 
-template <class T> inline void SafeRelease(T **ppT)
-{
-	if (*ppT)
-	{
-		(*ppT)->Release();
-		*ppT = NULL;
-	}
-}
+//template <class T> inline void SafeRelease(T **ppT)
+//{
+//	if (*ppT)
+//	{
+//		(*ppT)->Release();
+//		*ppT = NULL;
+//	}
+//}

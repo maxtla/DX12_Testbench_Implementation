@@ -7,6 +7,7 @@
 #include "DX_12VertexBuffer.h"
 #include "DX_12Texture2D.h"
 #include "DX_12Sampler2D.h"
+#include "MaterialDX_12.h"
 
 DX_12Renderer::DX_12Renderer()
 {
@@ -18,7 +19,7 @@ DX_12Renderer::~DX_12Renderer()
 
 Material * DX_12Renderer::makeMaterial(const std::string & name)
 {
-	return nullptr;
+	return new MaterialDX_12(name);
 }
 
 Mesh * DX_12Renderer::makeMesh()

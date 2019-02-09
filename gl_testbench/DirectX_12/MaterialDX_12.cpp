@@ -52,13 +52,16 @@ int MaterialDX_12::compileMaterial(std::string & errString)
 	removeShader(ShaderType::PS);
 
 	// split defines VS
-	_findMacros(ShaderType::VS, VS_Macros);
+	_findMacros(ShaderType::VS, &VS_Macros);
 
 	HRESULT hr;
 
+	//Conversion to wstring
+	std::wstring path = std::wstring(shaderFileNames[ShaderType::VS].begin(), shaderFileNames[ShaderType::VS].end());
+
 	ID3DBlob* vertexBlob;
 	hr = D3DCompileFromFile(
-		LPCWSTR(shaderFileNames[ShaderType::VS].c_str()),
+		LPCWSTR(path.c_str()),
 		VS_Macros,
 		nullptr,
 		"VS_main",
@@ -76,11 +79,14 @@ int MaterialDX_12::compileMaterial(std::string & errString)
 	}
 
 	// split defines PS
-	_findMacros(ShaderType::PS, PS_Macros);
+	_findMacros(ShaderType::PS, &PS_Macros);
+
+	//Conversion to wstring
+	path = std::wstring(shaderFileNames[ShaderType::PS].begin(), shaderFileNames[ShaderType::PS].end());
 
 	ID3DBlob* pixelBlob;
 	hr = D3DCompileFromFile(
-		LPCWSTR(shaderFileNames[ShaderType::PS].c_str()),
+		LPCWSTR(path.c_str()),
 		PS_Macros,
 		nullptr,
 		"PS_main",
@@ -126,21 +132,36 @@ void MaterialDX_12::disable()
 
 }
 
-void MaterialDX_12::_findMacros(ShaderType type, D3D_SHADER_MACRO* macros)
+void MaterialDX_12::_findMacros(ShaderType type, D3D_SHADER_MACRO** macros)
 {
 	auto shader = shaderDefines.find(type);
-	macros = new D3D_SHADER_MACRO[shader->second.size() + 1];
 	int count = 0;
-	for (auto it = shader->second.begin(); it != shader->second.end(); it++)
+
+	std::vector<std::string> defines;
+	std::vector<std::string> values;
+	// Parse set for all the different defines
+
+	std::string toParse = shader->second.begin()->c_str();
+
+	size_t i = 0;
+	while (i != toParse.size() - 1) 
 	{
-		size_t postDefine = (*it).find(' ');
-		size_t postName = (*it).find(' ', postDefine + 1);
-		std::string macroName = (*it).substr(postDefine + 1, postName - postDefine);
-		std::string macroDefinition = (*it).substr(postName + 1);
-		D3D_SHADER_MACRO macro;
-		macro.Name = LPCSTR(macroName.c_str());
-		macro.Definition = LPCSTR(macroDefinition.c_str());
-		macros[count++] = macro;
+		size_t postDefine = toParse.find(' ', i);
+		size_t postName = toParse.find(' ', postDefine + 1);
+		size_t lineTermination = toParse.find('\n', postName);
+		i = lineTermination;
+
+		defines.push_back(toParse.substr(postDefine + 1, postName - postDefine - 1));
+		values.push_back(toParse.substr(postName + 1, lineTermination - postName - 1));
 	}
-	macros[count] = { NULL, NULL };
+
+	size_t size = defines.size();
+
+	(*macros) = new D3D_SHADER_MACRO[size + 1];
+
+	for (size_t i = 0; i < size; i++)
+	{
+		(*macros)[i] = { (LPCSTR)defines[i].c_str(), (LPCSTR)values[i].c_str() };
+	}
+	(*macros)[size] = { NULL, NULL };
 }
