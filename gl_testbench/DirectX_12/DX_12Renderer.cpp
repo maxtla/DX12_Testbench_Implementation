@@ -54,7 +54,7 @@ Texture2D * DX_12Renderer::makeTexture2D()
 
 Sampler2D * DX_12Renderer::makeSampler2D()
 {
-	return new DX_12Sampler2D(this);
+	return new DX_12Sampler2D();
 }
 
 std::string DX_12Renderer::getShaderPath()
@@ -438,7 +438,7 @@ HRESULT DX_12Renderer::_createRootSignature()
 	D3D12_DESCRIPTOR_RANGE descRanges[1]; //Lets start with one
 	{
 		//1 CBV descriptor = 2 DWORDs
-		{	
+		{
 			descRanges[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
 			descRanges[0].NumDescriptors = 1; //Only assmuing one ConstantBuffer so far
 			descRanges[0].BaseShaderRegister = 0; // register b0
@@ -448,8 +448,24 @@ HRESULT DX_12Renderer::_createRootSignature()
 			DWORD_COUNT += 2;
 		}
 	}
+	
+	// did not know how many descriptor tabels and ranges we shall use.
+	//Start with defining descriptor ranges
+	D3D12_DESCRIPTOR_RANGE descRanges2[1]; //Lets start with one
+	{
+		//1 SRV descriptor = 2 DWORDs
+		{
+			descRanges2[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+			descRanges2[0].NumDescriptors = 1; //Only assmuing one texture so far
+			descRanges2[0].BaseShaderRegister = 0; // register t0
+			descRanges2[0].RegisterSpace = 0; //register(t0, space0);
+			descRanges2[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+
+			DWORD_COUNT += 2;
+		}
+	}
 	//Create necessary Descriptor Tables
-	D3D12_ROOT_DESCRIPTOR_TABLE descTables[1]; //Only need one so far
+	D3D12_ROOT_DESCRIPTOR_TABLE descTables[2]; //"Only need one so far"?
 	{
 		//1 Descriptor Table for the CBV descriptor = 1 DWORD
 		{
@@ -458,10 +474,17 @@ HRESULT DX_12Renderer::_createRootSignature()
 
 			DWORD_COUNT += 1;
 		}
+		//1 Descriptor Table for the SRV descriptor = 1 DWORD
+		{
+			descTables[1].NumDescriptorRanges = _ARRAYSIZE(descRanges2); //how many descriptors for this table
+			descTables[1].pDescriptorRanges = &descRanges2[0]; //pointer to descriptor array
+
+			DWORD_COUNT += 1;
+		}
 	}
 
 	//Create the root parameters (basically define the root table structure)
-	D3D12_ROOT_PARAMETER rootParams[1]; //We only have defined one element to insert (Descriptor table)
+	D3D12_ROOT_PARAMETER rootParams[2]; //We only have defined one element to insert (Descriptor table)
 	{
 		// [0] - Descriptor table for CBV descriptor
 		{
@@ -469,7 +492,29 @@ HRESULT DX_12Renderer::_createRootSignature()
 			rootParams[0].DescriptorTable = descTables[0]; //Which desc table?
 			rootParams[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX; //Which shader stages can access this entry? 
 		}
+		// [1] - Descriptor table for SRV descriptor
+		{
+			rootParams[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE; //What type is the entry?
+			rootParams[1].DescriptorTable = descTables[1]; //Which desc table?
+			rootParams[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL; //Which shader stages can access this entry? 
+		}
 	}
+
+	// Create descriptor of static sampler
+	D3D12_STATIC_SAMPLER_DESC sampler{};
+	sampler.Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
+	sampler.AddressU = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
+	sampler.AddressV = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
+	sampler.AddressW = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
+	sampler.MipLODBias = 0;
+	sampler.MaxAnisotropy = 0;
+	sampler.ComparisonFunc = D3D12_COMPARISON_FUNC_NEVER;
+	sampler.BorderColor = D3D12_STATIC_BORDER_COLOR_TRANSPARENT_BLACK;
+	sampler.MinLOD = 0.0f;
+	sampler.MaxLOD = D3D12_FLOAT32_MAX;
+	sampler.ShaderRegister = 0;
+	sampler.RegisterSpace = 0;
+	sampler.ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 
 	//Create the descriptions of the root signature
 	D3D12_ROOT_SIGNATURE_DESC rsDesc;
@@ -477,8 +522,8 @@ HRESULT DX_12Renderer::_createRootSignature()
 		rsDesc.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT; //IA enabled = max 63 DWORDs
 		rsDesc.NumParameters = _ARRAYSIZE(rootParams); //How many entries?
 		rsDesc.pParameters = rootParams; //Pointer to array of table entries
-		rsDesc.NumStaticSamplers = 0;  //No static samplers were defined
-		rsDesc.pStaticSamplers = NULL; //No static samplers were defined
+		rsDesc.NumStaticSamplers = 1;  //One static samplers were defined
+		rsDesc.pStaticSamplers = &sampler; // The static sampler
 	}
 
 	//Serialize the root signature (no error blob)

@@ -10,13 +10,11 @@
 
 class DX_12VertexBuffer;
 class DX_12Texture2D;
-class DX_12Sampler2D;
 
 class DX_12Renderer : public Renderer
 {
 	friend class DX_12VertexBuffer;
 	friend class DX_12Texture2D;
-	friend class DX_12Sampler2D;
 public:
 	DX_12Renderer();
 	~DX_12Renderer();
