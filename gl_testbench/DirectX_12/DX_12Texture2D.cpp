@@ -144,6 +144,12 @@ int DX_12Texture2D::loadFromFile(std::string filename)
 		pDxRenderer->m_device->CreateShaderResourceView(_texture, &srvDesc, pDxRenderer->m_resourceHeap->GetCPUDescriptorHandleForHeapStart());
 	}
 
+	// set the descriptor heap
+	ID3D12DescriptorHeap* descriptorHeaps[] = { pDxRenderer->m_resourceHeap };
+	pDxRenderer->m_commandList->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
+	// set the descriptor table to the descriptor heap (parameter 1, as constant buffer root descriptor is parameter index 0)
+	pDxRenderer->m_commandList->SetGraphicsRootDescriptorTable(1, pDxRenderer->m_resourceHeap->GetGPUDescriptorHandleForHeapStart());
+
 	// Close the command list and execute it to begin the initial GPU setup.
 	pDxRenderer->m_commandList->Close();
 	ID3D12CommandList* ppCommandLists[] = { pDxRenderer->m_commandList };
@@ -152,12 +158,6 @@ int DX_12Texture2D::loadFromFile(std::string filename)
 	pDxRenderer->WaitForGPU();
 
 	SafeRelease(&_textureUploadHeap);
-
-	// set the descriptor heap
-	ID3D12DescriptorHeap* descriptorHeaps[] = { pDxRenderer->m_resourceHeap };
-	pDxRenderer->m_commandList->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
-	// set the descriptor table to the descriptor heap (parameter 1, as constant buffer root descriptor is parameter index 0)
-	pDxRenderer->m_commandList->SetGraphicsRootDescriptorTable(1, pDxRenderer->m_resourceHeap->GetGPUDescriptorHandleForHeapStart());
 
 	stbi_image_free(rgba);
 	return 1;
