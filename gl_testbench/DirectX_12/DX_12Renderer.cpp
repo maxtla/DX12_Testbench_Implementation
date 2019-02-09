@@ -131,6 +131,13 @@ int DX_12Renderer::initialize(unsigned int width, unsigned int height)
 		PostMessageBoxOnError(hr, L"Failed to create Render Targets: ", L"Fatal error", MB_ICONERROR, wHnd);
 		exit(-1);
 	}
+	//create resource heap
+	hr = _createResourceDescHeap();
+	if (FAILED(hr))
+	{
+		PostMessageBoxOnError(hr, L"Failed to create Resource Descriptor Heap: ", L"Fatal error", MB_ICONERROR, wHnd);
+		exit(-1);
+	}
 	//create the fence
 	hr = _createFence();
 	if (FAILED(hr))
@@ -408,6 +415,15 @@ HRESULT DX_12Renderer::_createRenderTargets()
 		}
 	}
 	return hr;
+}
+
+HRESULT DX_12Renderer::_createResourceDescHeap()
+{
+	D3D12_DESCRIPTOR_HEAP_DESC heapDescriptorDesc = {};
+	heapDescriptorDesc.NumDescriptors = 1;
+	heapDescriptorDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+	heapDescriptorDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+	return m_device->CreateDescriptorHeap(&heapDescriptorDesc, IID_PPV_ARGS(&m_resourceHeap));
 }
 
 HRESULT DX_12Renderer::_createFence()

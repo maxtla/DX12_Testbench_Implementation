@@ -1,17 +1,17 @@
 #include "ConstantBufferDX_12.h"
 #include "MaterialDX_12.h"
 
-ConstantBufferDX_12::ConstantBufferDX_12(std::string NAME, unsigned int location, ID3D12Device* gDevice)
+int ConstantBufferDX_12::RefID = 0;
+
+ConstantBufferDX_12::ConstantBufferDX_12(std::string NAME, unsigned int location,  ID3D12DescriptorHeap * pDescHeap)
 {
 	name = NAME;
 	this->location = location;
 
-	D3D12_DESCRIPTOR_HEAP_DESC heapDescriptorDesc = {};
-	heapDescriptorDesc.NumDescriptors = 1;
-	heapDescriptorDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
-	heapDescriptorDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
-	gDevice->CreateDescriptorHeap(&heapDescriptorDesc, IID_PPV_ARGS(&gDescriptorHeap));
-
+	ID3D12Device ** ppDevice = NULL;
+	//Get device from descriptor heap
+	ThrowIfFailed(pDescHeap->GetDevice(IID_PPV_ARGS(ppDevice)));
+	
 	// Not sure if this is correct
 	// Trying to achieve 256-byte aligned CB
 	UINT cbSizeAligned = (sizeof(ConstantBuffer) + 255) & ~255;
@@ -32,28 +32,28 @@ ConstantBufferDX_12::ConstantBufferDX_12(std::string NAME, unsigned int location
 	resourceDesc.SampleDesc.Count = 1;
 	resourceDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
 
-	gDevice->CreateCommittedResource(
+	ThrowIfFailed((*ppDevice)->CreateCommittedResource(
 		&heapProperties,
 		D3D12_HEAP_FLAG_NONE,
 		&resourceDesc,
 		D3D12_RESOURCE_STATE_GENERIC_READ,
 		nullptr,
 		IID_PPV_ARGS(&gConstantBufferResource)
-	);
+	));
 
 	// Used for debugging
-	gConstantBufferResource->SetName(L"CB Heap");
+	gConstantBufferResource->SetName(std::wstring(L"CB_Resource_" + std::to_wstring(RefID)).c_str());
+	RefID++;
 
 	D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc = {};
 	cbvDesc.BufferLocation = gConstantBufferResource->GetGPUVirtualAddress();
 	cbvDesc.SizeInBytes = cbSizeAligned;
-	gDevice->CreateConstantBufferView(&cbvDesc, gDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
+	(*ppDevice)->CreateConstantBufferView(&cbvDesc, pDescHeap->GetCPUDescriptorHandleForHeapStart());
 }
 
 ConstantBufferDX_12::~ConstantBufferDX_12()
 {
-	/*SafeRelease(&gDescriptorHeap);
-	SafeRelease(&gConstantBufferResource);*/
+	SafeRelease(&gConstantBufferResource);
 }
 
 void ConstantBufferDX_12::setData(const void* data, size_t size, Material* m, unsigned int location)
