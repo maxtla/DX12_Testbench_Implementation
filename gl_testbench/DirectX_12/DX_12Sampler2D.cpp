@@ -1,5 +1,5 @@
 #include "DX_12Sampler2D.h"
-#include "d3dx12.h"
+
 
 DX_12Sampler2D::DX_12Sampler2D(DX_12Renderer* renderer) : _renderer(renderer)
 {

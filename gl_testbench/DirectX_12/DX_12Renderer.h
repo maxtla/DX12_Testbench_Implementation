@@ -5,8 +5,8 @@
 #include <SDL.h>
 #include <d3d12.h>
 #include <dxgi1_5.h>
-#include <comdef.h>
-#include <tchar.h>
+
+#include "DX_12Helper.h"
 
 class DX_12VertexBuffer;
 class DX_12Texture2D;
@@ -55,11 +55,12 @@ private:
 	//D3D12 Debug														    
 	ID3D12Debug* m_debugController						    = NULL;
 	//D3D12/Pipeline objects										    
-	ID3D12Device* m_device										 = NULL;
+	ID3D12Device* m_device											= NULL;
 	ID3D12CommandQueue* m_commandQueue		    = NULL;
 	ID3D12CommandAllocator * m_commandAllocator	= NULL;
 	IDXGISwapChain3* m_swapChain								= NULL;
 	ID3D12DescriptorHeap* m_rtvDescHeap				    = NULL;
+	ID3D12DescriptorHeap* m_resourceHeap					= NULL;
 	ID3D12Resource* m_renderTargets[FRAME_COUNT]	= { NULL, NULL };
 	D3D12_VIEWPORT m_viewPort	                                = {};
 	D3D12_RECT m_scissorRect                                        = {};
@@ -94,34 +95,8 @@ private:
 	HRESULT _createCmdAllocatorAndList();
 	HRESULT _createSwapChain(unsigned int width, unsigned int height, IDXGIFactory5 ** ppFactory);
 	HRESULT _createRenderTargets();
+	HRESULT _createResourceDescHeap();
 	HRESULT _createFence();
 	HRESULT _createRootSignature();
 };
 
-//Since no default SafeRelease function is included in D3D12.h
-//and I do not want to have include the ComPtr header to soley access theirs
-//I decided to write their implementation directly in my header inlined
-template <class T> inline void SafeRelease(T **ppT)
-{
-	if (*ppT)
-	{
-		(*ppT)->Release();
-		*ppT = NULL;
-	}
-}
-
-static inline void ThrowIfFailed(HRESULT hr)
-{
-	if (FAILED(hr))
-	{
-		throw std::exception();
-	}
-}
-
-static void PostMessageBoxOnError(HRESULT hr, TCHAR* info, TCHAR* caption, UINT type, HWND hWnd)
-{
-	_com_error err(hr);
-	TCHAR message[64]; //buffer to write to when concatenating the TCHAR strings
-	_stprintf(message, _T("%s%s"), info, err.ErrorMessage());
-	MessageBoxW(hWnd, message, caption, MB_OK | type);
-}
