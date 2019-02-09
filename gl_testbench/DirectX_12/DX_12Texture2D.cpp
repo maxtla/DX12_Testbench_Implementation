@@ -56,6 +56,8 @@ int DX_12Texture2D::loadFromFile(std::string filename)
 		rd.SampleDesc.Count = 1;
 		rd.SampleDesc.Quality = 0;
 		rd.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
+		rd.Alignment = 0;
+		rd.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
 
 		D3D12_HEAP_PROPERTIES heapProperties = {};
 		heapProperties.Type = D3D12_HEAP_TYPE_DEFAULT;
@@ -68,7 +70,7 @@ int DX_12Texture2D::loadFromFile(std::string filename)
 			&heapProperties,
 			D3D12_HEAP_FLAG_NONE,
 			&rd,
-			D3D12_RESOURCE_STATE_COPY_DEST,
+			D3D12_RESOURCE_STATE_COPY_DEST,// We will copy the texture from the upload heap to here, so we start it out in a copy dest state
 			nullptr,
 			IID_PPV_ARGS(&_texture)
 		) );
@@ -118,7 +120,7 @@ int DX_12Texture2D::loadFromFile(std::string filename)
 		// from the upload heap to the Texture2D
 		D3D12_SUBRESOURCE_DATA textureData = {};
 		textureData.pData = &rgb;
-		textureData.RowPitch = w * 4; // 4 = size of pixel: rgba.
+		textureData.RowPitch = w * 4 * sizeof(unsigned char); // 4 = size of pixel: rgba.
 		textureData.SlicePitch = textureData.RowPitch * h;
 
 		D3D12_RESOURCE_BARRIER barrier = {};
