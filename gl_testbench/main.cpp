@@ -125,7 +125,7 @@ void renderScene()
 	renderer->frame();
 	renderer->present();
 	updateDelta();
-	sprintf(gTitleBuff, "OpenGL - %3.0lf", gLastDelta);
+	sprintf(gTitleBuff, "DirectX 12 - %3.0lf", gLastDelta);
 	renderer->setWinTitle(gTitleBuff);
 }
 
