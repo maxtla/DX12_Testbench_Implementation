@@ -31,8 +31,8 @@ int DX_12Texture2D::loadFromFile(std::string filename)
 		return 0;
 
 	int w, h, bpp;
-	unsigned char* rgb = stbi_load(filename.c_str(), &w, &h, &bpp, STBI_rgb_alpha);
-	if (rgb == nullptr)
+	unsigned char* rgba = stbi_load(filename.c_str(), &w, &h, &bpp, STBI_rgb_alpha);
+	if (rgba == nullptr)
 	{
 		fprintf(stderr, "Error loading texture file: %s\n", filename.c_str());
 		return -1;
@@ -46,16 +46,18 @@ int DX_12Texture2D::loadFromFile(std::string filename)
 	// Create the texture
 	{
 		// Describe and create a Texture2D
-		D3D12_RESOURCE_DESC rd = {};
-		rd.MipLevels = 1;
-		rd.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-		rd.Width = w;
-		rd.Height = h;
-		rd.Flags = D3D12_RESOURCE_FLAG_NONE;
-		rd.DepthOrArraySize = 1;
-		rd.SampleDesc.Count = 1;
-		rd.SampleDesc.Quality = 0;
-		rd.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
+		D3D12_RESOURCE_DESC textureDesc = {};
+		textureDesc.MipLevels = 1;
+		textureDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+		textureDesc.Width = w;
+		textureDesc.Height = h;
+		textureDesc.Flags = D3D12_RESOURCE_FLAG_NONE;
+		textureDesc.DepthOrArraySize = 1;
+		textureDesc.SampleDesc.Count = 1;
+		textureDesc.SampleDesc.Quality = 0;
+		textureDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
+		textureDesc.Alignment = 0;
+		textureDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
 
 		D3D12_HEAP_PROPERTIES heapProperties = {};
 		heapProperties.Type = D3D12_HEAP_TYPE_DEFAULT;
@@ -67,8 +69,8 @@ int DX_12Texture2D::loadFromFile(std::string filename)
 		ThrowIfFailed( pDxRenderer->m_device->CreateCommittedResource(
 			&heapProperties,
 			D3D12_HEAP_FLAG_NONE,
-			&rd,
-			D3D12_RESOURCE_STATE_COPY_DEST,
+			&textureDesc,
+			D3D12_RESOURCE_STATE_COPY_DEST,// We will copy the texture from the upload heap to here, so we start it out in a copy dest state
 			nullptr,
 			IID_PPV_ARGS(&_texture)
 		) );
@@ -78,9 +80,8 @@ int DX_12Texture2D::loadFromFile(std::string filename)
 		// Create the GPU upload buffer
 		UINT64 uploadBufferSize = 0;
 		{
-			auto desc = _texture->GetDesc();
 			pDxRenderer->m_device->GetCopyableFootprints(
-				&desc,
+				&textureDesc,
 				0,
 				1,
 				0,
@@ -117,8 +118,8 @@ int DX_12Texture2D::loadFromFile(std::string filename)
 		// Copy data to the intermediate upload heap and then schedule a copy
 		// from the upload heap to the Texture2D
 		D3D12_SUBRESOURCE_DATA textureData = {};
-		textureData.pData = &rgb;
-		textureData.RowPitch = w * 4; // 4 = size of pixel: rgba.
+		textureData.pData = rgba;
+		textureData.RowPitch = w * 4 * sizeof(unsigned char); // 4 = size of pixel: rgba.
 		textureData.SlicePitch = textureData.RowPitch * h;
 
 		D3D12_RESOURCE_BARRIER barrier = {};
@@ -136,12 +137,18 @@ int DX_12Texture2D::loadFromFile(std::string filename)
 		// Describe and create a SRV for the texture
 		D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
 		srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-		srvDesc.Format = rd.Format;
+		srvDesc.Format = textureDesc.Format;
 		srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
 		srvDesc.Texture2D.MipLevels = 1;
 
 		pDxRenderer->m_device->CreateShaderResourceView(_texture, &srvDesc, pDxRenderer->m_resourceHeap->GetCPUDescriptorHandleForHeapStart());
 	}
+
+	// set the descriptor heap
+	ID3D12DescriptorHeap* descriptorHeaps[] = { pDxRenderer->m_resourceHeap };
+	pDxRenderer->m_commandList->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
+	// set the descriptor table to the descriptor heap (parameter 1, as constant buffer root descriptor is parameter index 0)
+	pDxRenderer->m_commandList->SetGraphicsRootDescriptorTable(1, pDxRenderer->m_resourceHeap->GetGPUDescriptorHandleForHeapStart());
 
 	// Close the command list and execute it to begin the initial GPU setup.
 	pDxRenderer->m_commandList->Close();
@@ -152,7 +159,7 @@ int DX_12Texture2D::loadFromFile(std::string filename)
 
 	SafeRelease(&_textureUploadHeap);
 
-	stbi_image_free(rgb);
+	stbi_image_free(rgba);
 	return 1;
 }
 

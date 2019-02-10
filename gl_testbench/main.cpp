@@ -208,14 +208,14 @@ int initialiseTestbench()
 	}
 
 	//// one technique with wireframe
-	//RenderState* renderState1 = renderer->makeRenderState();
-	//renderState1->setWireFrame(true);
+	RenderState* renderState1 = renderer->makeRenderState();
+	renderState1->setWireFrame(true);
 
 	//// basic technique
-	//techniques.push_back(renderer->makeTechnique(materials[0], renderState1));
-	//techniques.push_back(renderer->makeTechnique(materials[1], renderer->makeRenderState()));
-	//techniques.push_back(renderer->makeTechnique(materials[2], renderer->makeRenderState()));
-	//techniques.push_back(renderer->makeTechnique(materials[3], renderer->makeRenderState()));
+	techniques.push_back(renderer->makeTechnique(materials[0], renderState1));
+	techniques.push_back(renderer->makeTechnique(materials[1], renderer->makeRenderState()));
+	techniques.push_back(renderer->makeTechnique(materials[2], renderer->makeRenderState()));
+	techniques.push_back(renderer->makeTechnique(materials[3], renderer->makeRenderState()));
 
 	// create texture
 	Texture2D* fatboy = renderer->makeTexture2D();
