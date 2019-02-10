@@ -8,9 +8,9 @@ ConstantBufferDX_12::ConstantBufferDX_12(std::string NAME, unsigned int location
 	name = NAME;
 	this->location = location;
 
-	ID3D12Device ** ppDevice = NULL;
+	ID3D12Device * pDevice = NULL;
 	//Get device from descriptor heap
-	ThrowIfFailed(pDescHeap->GetDevice(IID_PPV_ARGS(ppDevice)));
+	ThrowIfFailed(pDescHeap->GetDevice(IID_PPV_ARGS(&pDevice)));
 	
 	// Not sure if this is correct
 	// Trying to achieve 256-byte aligned CB
@@ -32,7 +32,7 @@ ConstantBufferDX_12::ConstantBufferDX_12(std::string NAME, unsigned int location
 	resourceDesc.SampleDesc.Count = 1;
 	resourceDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
 
-	ThrowIfFailed((*ppDevice)->CreateCommittedResource(
+	ThrowIfFailed(pDevice->CreateCommittedResource(
 		&heapProperties,
 		D3D12_HEAP_FLAG_NONE,
 		&resourceDesc,
@@ -48,7 +48,7 @@ ConstantBufferDX_12::ConstantBufferDX_12(std::string NAME, unsigned int location
 	D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc = {};
 	cbvDesc.BufferLocation = gConstantBufferResource->GetGPUVirtualAddress();
 	cbvDesc.SizeInBytes = cbSizeAligned;
-	(*ppDevice)->CreateConstantBufferView(&cbvDesc, pDescHeap->GetCPUDescriptorHandleForHeapStart());
+	pDevice->CreateConstantBufferView(&cbvDesc, pDescHeap->GetCPUDescriptorHandleForHeapStart());
 }
 
 ConstantBufferDX_12::~ConstantBufferDX_12()

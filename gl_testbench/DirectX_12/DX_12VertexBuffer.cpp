@@ -21,6 +21,7 @@ DX_12VertexBuffer::DX_12VertexBuffer(DX_12Renderer* renderer, size_t size, Verte
 	rd.SampleDesc.Count = 1;
 	rd.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
 
+	m_pCmdList = renderer->m_commandList;
 	//Creates both a resource and an implicit heap, such that the heap is big enough
 	//to contain the entire resource and the resource is mapped to the heap.
 	renderer->m_device->CreateCommittedResource(
@@ -61,6 +62,8 @@ void DX_12VertexBuffer::setData(const void * data, size_t size, size_t offset)
 void DX_12VertexBuffer::bind(size_t offset, size_t size, unsigned int location)
 {
 	assert(offset + size <= totalSize);
+
+	m_pCmdList->IASetVertexBuffers(location, 1, &_vertexBuffer_View);
 }
 
 void DX_12VertexBuffer::unbind()
