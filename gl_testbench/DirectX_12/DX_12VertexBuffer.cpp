@@ -1,7 +1,7 @@
 #include "DX_12VertexBuffer.h"
 #include <assert.h>
 
-D3D12_HEAP_TYPE DX_12VertexBuffer::usageMapping[3] = { D3D12_HEAP_TYPE_UPLOAD, D3D12_HEAP_TYPE_READBACK, D3D12_HEAP_TYPE_DEFAULT };
+D3D12_HEAP_TYPE DX_12VertexBuffer::usageMapping[3] = { D3D12_HEAP_TYPE_DEFAULT, D3D12_HEAP_TYPE_UPLOAD, D3D12_HEAP_TYPE_READBACK };
 
 DX_12VertexBuffer::DX_12VertexBuffer(DX_12Renderer* renderer, size_t size, VertexBuffer::DATA_USAGE usage)
 {

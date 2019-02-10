@@ -198,8 +198,14 @@ void DX_12Renderer::setRenderState(RenderState * ps)
 {
 }
 
+int perMat = 1;
 void DX_12Renderer::submit(Mesh * mesh)
 {
+	if (perMat) {
+		drawList2[mesh->technique].push_back(mesh);
+	}
+	else
+		drawList.push_back(mesh);
 }
 
 void DX_12Renderer::frame()
@@ -264,6 +270,18 @@ inline void DX_12Renderer::PopulateCommandList()
 	m_commandList->ClearRenderTargetView(cdh, clearColor, 0, nullptr);
 
 	//Iterate through Mesh lists now?
+	// Testing.
+	if (perMat != 1)
+	{
+		for (auto mesh : drawList)
+		{
+			mesh->technique->enable(this);// ?
+			m_commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+			m_commandList->IASetVertexBuffers(0, 1, &((DX_12VertexBuffer*)(mesh->geometryBuffers[POSITION].buffer))->GetVertexBufferView());
+
+			m_commandList->DrawInstanced(mesh->geometryBuffers[POSITION].numElements, 1, mesh->geometryBuffers[POSITION].offset, 0);
+		}
+	}
 
 	// Indicate that the back buffer will now be used to present.
 	SetResourceTransitionBarrier(D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);

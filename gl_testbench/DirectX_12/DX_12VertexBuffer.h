@@ -19,6 +19,7 @@ public:
 
 	static D3D12_HEAP_TYPE usageMapping[3];
 
+	D3D12_VERTEX_BUFFER_VIEW& GetVertexBufferView() { return _vertexBuffer_View; };
 private:
 	size_t totalSize;
 	ID3D12Resource* _vertexBuffer = nullptr;
