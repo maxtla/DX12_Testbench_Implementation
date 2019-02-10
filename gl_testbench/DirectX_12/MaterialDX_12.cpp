@@ -59,7 +59,6 @@ int MaterialDX_12::compileMaterial(std::string & errString)
 	//Conversion to wstring
 	std::wstring path = std::wstring(shaderFileNames[ShaderType::VS].begin(), shaderFileNames[ShaderType::VS].end());
 
-	ID3DBlob* vertexBlob;
 	hr = D3DCompileFromFile(
 		LPCWSTR(path.c_str()),
 		VS_Macros,
@@ -68,7 +67,7 @@ int MaterialDX_12::compileMaterial(std::string & errString)
 		"vs_5_0",
 		0,
 		0,
-		&vertexBlob,
+		&this->m_vertexShaderCode,
 		nullptr
 	);
 	
@@ -84,7 +83,6 @@ int MaterialDX_12::compileMaterial(std::string & errString)
 	//Conversion to wstring
 	path = std::wstring(shaderFileNames[ShaderType::PS].begin(), shaderFileNames[ShaderType::PS].end());
 
-	ID3DBlob* pixelBlob;
 	hr = D3DCompileFromFile(
 		LPCWSTR(path.c_str()),
 		PS_Macros,
@@ -93,7 +91,7 @@ int MaterialDX_12::compileMaterial(std::string & errString)
 		"ps_5_0",
 		0,
 		0,
-		&pixelBlob,
+		&this->m_pixelShaderCode,
 		nullptr
 	);
 
@@ -103,7 +101,7 @@ int MaterialDX_12::compileMaterial(std::string & errString)
 		return -1;
 	}
 
-	// Create PSO here?
+	// Create Shader objects here
 
 	return 0;
 }

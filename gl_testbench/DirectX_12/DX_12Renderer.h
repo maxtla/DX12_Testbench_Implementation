@@ -5,16 +5,19 @@
 #include <SDL.h>
 #include <d3d12.h>
 #include <dxgi1_5.h>
+#include <unordered_map>
 
 #include "DX_12Helper.h"
 
 class DX_12VertexBuffer;
 class DX_12Texture2D;
+class DX_12Technique;
 
 class DX_12Renderer : public Renderer
 {
 	friend class DX_12VertexBuffer;
 	friend class DX_12Texture2D;
+	friend class DX_12Technique;
 public:
 	DX_12Renderer();
 	~DX_12Renderer();
@@ -74,9 +77,6 @@ private:
 	ID3D12Fence* m_fence										= NULL;
 	UINT64 m_fenceValue											= 0;
 
-	std::vector<Mesh*> drawList;
-	std::unordered_map<Technique*, std::vector<Mesh*>> drawList2;
-
 	bool globalWireframeMode = false;
 	float clearColor[4] = { 0,0,0,0 };
 
@@ -96,5 +96,7 @@ private:
 	HRESULT _createResourceDescHeap();
 	HRESULT _createFence();
 	HRESULT _createRootSignature();
+
+	std::unordered_map<Technique*, std::vector<Mesh*>> drawList;
 };
 

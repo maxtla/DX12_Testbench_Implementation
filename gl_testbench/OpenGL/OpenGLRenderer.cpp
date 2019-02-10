@@ -11,6 +11,8 @@
 #include "ConstantBufferGL.h"
 #include "Texture2DGL.h"
 
+
+
 OpenGLRenderer::OpenGLRenderer()
 {
 }

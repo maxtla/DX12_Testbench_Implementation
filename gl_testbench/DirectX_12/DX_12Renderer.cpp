@@ -2,6 +2,8 @@
 #pragma comment(lib, "DXGI.lib")
 #pragma comment(lib, "comsuppw.lib")
 
+#include <dxgidebug.h>
+
 #include "DX_12Renderer.h"
 #include <assert.h>
 #include "DX_12VertexBuffer.h"
@@ -9,6 +11,9 @@
 #include "DX_12Sampler2D.h"
 #include "MaterialDX_12.h"
 #include "DX_12Mesh.h"
+#include "DX_12Technique.h"
+#include "DX_12RenderState.h"
+#include "ConstantBufferDX_12.h"
 
 DX_12Renderer::DX_12Renderer()
 {
@@ -16,6 +21,7 @@ DX_12Renderer::DX_12Renderer()
 
 DX_12Renderer::~DX_12Renderer()
 {
+	
 }
 
 Material * DX_12Renderer::makeMaterial(const std::string & name)
@@ -35,17 +41,17 @@ VertexBuffer * DX_12Renderer::makeVertexBuffer(size_t size, VertexBuffer::DATA_U
 
 ConstantBuffer * DX_12Renderer::makeConstantBuffer(std::string NAME, unsigned int location)
 {
-	return nullptr;
+	return new ConstantBufferDX_12(NAME, location, this->m_resourceHeap);
 }
 
 RenderState * DX_12Renderer::makeRenderState()
 {
-	return nullptr;
+	return new DX_12RenderState();
 }
 
 Technique * DX_12Renderer::makeTechnique(Material * m, RenderState * r)
 {
-	return nullptr;
+	return new DX_12Technique(m, r, this);
 }
 
 Texture2D * DX_12Renderer::makeTexture2D()
@@ -182,6 +188,22 @@ void DX_12Renderer::setWinTitle(const char * title)
 
 int DX_12Renderer::shutdown()
 {
+	SafeRelease(&m_device);
+	SafeRelease(&m_commandQueue);
+	SafeRelease(&m_commandAllocator);
+	SafeRelease(&m_swapChain);
+	SafeRelease(&m_rtvDescHeap);
+	SafeRelease(&m_resourceHeap);
+	SafeRelease(&m_renderTargets[0]);
+	SafeRelease(&m_renderTargets[1]);
+	SafeRelease(&m_rootSignature);
+	SafeRelease(&m_commandList);
+	SafeRelease(&m_fence);
+	SafeRelease(&m_debugController);
+
+	CloseHandle(m_fenceEvent);
+
+	SDL_Quit();
 	return 0;
 }
 
@@ -200,6 +222,7 @@ void DX_12Renderer::setRenderState(RenderState * ps)
 
 void DX_12Renderer::submit(Mesh * mesh)
 {
+	this->drawList[mesh->technique].push_back(mesh);
 }
 
 void DX_12Renderer::frame()
@@ -262,9 +285,30 @@ inline void DX_12Renderer::PopulateCommandList()
 	// Record commands.
 	m_commandList->OMSetRenderTargets(1, &cdh, TRUE, nullptr);
 	m_commandList->ClearRenderTargetView(cdh, clearColor, 0, nullptr);
+	m_commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	//Iterate through Mesh lists now?
+	for (auto &t : drawList)
+	{
+		t.first->enable(this);
+		//Bind PSO object?
+		m_commandList->SetPipelineState(dynamic_cast<DX_12Technique*>(t.first)->m_PSO);
 
+		for (auto &m : t.second)
+		{
+			for (auto &tex : m->textures) //Bind textures? what, why tho, aren't they in root signature already?
+			{
+				tex.second->bind(tex.first);
+			}
+			for (auto &vtxBuffer : m->geometryBuffers) //Bind vtx buffers to IA 
+			{
+				m->bindIAVertexBuffer(vtxBuffer.first);
+			}
+			//How many vertices to draw?
+			size_t nrOfVertices = m->geometryBuffers[0].numElements;
+			m_commandList->DrawInstanced(nrOfVertices, 1, 0, 0);
+		}
+	}
 	// Indicate that the back buffer will now be used to present.
 	SetResourceTransitionBarrier(D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
 

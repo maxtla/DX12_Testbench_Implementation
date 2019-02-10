@@ -130,6 +130,9 @@ int DX_12Texture2D::loadFromFile(std::string filename)
 		barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
 		barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
 
+		ThrowIfFailed(pDxRenderer->m_commandAllocator->Reset());
+		ThrowIfFailed(pDxRenderer->m_commandList->Reset(pDxRenderer->m_commandAllocator, nullptr));
+		pDxRenderer->m_commandList->SetGraphicsRootSignature(pDxRenderer->m_rootSignature);
 
 		UpdateSubresources(pDxRenderer->m_commandList, _texture, _textureUploadHeap, 0, 0, 1, &textureData);
 		pDxRenderer->m_commandList->ResourceBarrier(1, &barrier);

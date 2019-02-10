@@ -44,11 +44,14 @@ public:
 
 	std::map<unsigned int, ConstantBufferDX_12*> constantBuffers;
 
+	std::pair<ID3DBlob*, ID3DBlob*> GetShaderCodePtrs() { return std::pair< ID3DBlob*, ID3DBlob*>(m_vertexShaderCode, m_pixelShaderCode); }
 private:
 	std::string name;
 	D3D_SHADER_MACRO* VS_Macros = NULL;
 	D3D_SHADER_MACRO* PS_Macros = NULL;
-
+	
+	ID3DBlob * m_vertexShaderCode	 = NULL;
+	ID3DBlob * m_pixelShaderCode		 = NULL;
 private:
 	void _findMacros(ShaderType type, D3D_SHADER_MACRO** macros);
 };
