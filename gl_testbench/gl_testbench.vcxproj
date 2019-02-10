@@ -187,6 +187,7 @@
     <ClInclude Include="ConstantBuffer.h" />
     <ClInclude Include="DirectX_12\ConstantBufferDX_12.h" />
     <ClInclude Include="DirectX_12\DX_12Helper.h" />
+    <ClInclude Include="DirectX_12\DX_12Mesh.h" />
     <ClInclude Include="DirectX_12\DX_12Renderer.h" />
     <ClInclude Include="DirectX_12\DX_12Sampler2D.h" />
     <ClInclude Include="DirectX_12\DX_12Texture2D.h" />

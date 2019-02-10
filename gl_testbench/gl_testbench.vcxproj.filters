@@ -203,6 +203,9 @@
     <ClInclude Include="DirectX_12\DX_12Helper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="DirectX_12\DX_12Mesh.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\assets\GL45\FragmentShader.glsl">
