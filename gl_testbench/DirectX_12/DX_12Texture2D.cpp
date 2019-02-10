@@ -1,122 +1,183 @@
 #include "DX_12Texture2D.h"
 #include "stb_image.h"
-#include "d3dx12.h"
 
-DX_12Texture2D::DX_12Texture2D(DX_12Renderer* renderer) : _renderer(renderer)
+std::map<std::string, ID3D12Resource*> DX_12Texture2D::s_textureMap; 
+int DX_12Texture2D::RefID = 0;
+
+DX_12Texture2D::DX_12Texture2D(DX_12Renderer * pRenderer)
 {
-	// Describe and create a shader resource view (srv) heap for the texture
-	// do not know where to put this
-	/*D3D12_DESCRIPTOR_HEAP_DESC srvHeapDesc = {};
-	srvHeapDesc.NumDescriptors = 1;
-	srvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
-	srvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
-	renderer->m_device->CreateDescriptorHeap(&srvHeapDesc, IID_PPV_ARGS(&_srvHeap));*/
+	this->pDxRenderer = pRenderer;
 }
 
 DX_12Texture2D::~DX_12Texture2D()
 {
-	SafeRelease(&_texture);/*
-	SafeRelease(&_srvHeap);*/
+	auto it = s_textureMap.begin();
+	for (it; it != s_textureMap.end(); it++)
+	{
+		if (it->second == _texture) //name exists already
+		{
+			if (SafeRelease(&it->second) == 0); //Dereference -> Counter decreases by 1, if 0 it is to erased from map
+			s_textureMap.erase(it);
+			break;
+		}
+	}
+	_texture = NULL;
 }
 
 int DX_12Texture2D::loadFromFile(std::string filename)
 {
+	//check the texture map if we already have loaded this texture from file
+	if (_checkTextureMap(filename))
+		return 0;
+
 	int w, h, bpp;
-	unsigned char* rgb = stbi_load(filename.c_str(), &w, &h, &bpp, STBI_rgb_alpha);
-	if (rgb == nullptr)
+	unsigned char* rgba = stbi_load(filename.c_str(), &w, &h, &bpp, STBI_rgb_alpha);
+	if (rgba == nullptr)
 	{
 		fprintf(stderr, "Error loading texture file: %s\n", filename.c_str());
 		return -1;
 	}
 
-	SafeRelease(&_texture);
-
+	if (_texture)
+		SafeRelease(&_texture);
 	// Release the pointer (_textureUploadHeap) only when the upload of the texture is done
 	ID3D12Resource* _textureUploadHeap = nullptr;
 
 	// Create the texture
 	{
 		// Describe and create a Texture2D
-		D3D12_RESOURCE_DESC rd = {};
-		rd.MipLevels = 1;
-		rd.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-		rd.Width = w;
-		rd.Height = h;
-		rd.Flags = D3D12_RESOURCE_FLAG_NONE;
-		rd.DepthOrArraySize = 1;
-		rd.SampleDesc.Count = 1;
-		rd.SampleDesc.Quality = 0;
-		rd.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
+		D3D12_RESOURCE_DESC textureDesc = {};
+		textureDesc.MipLevels = 1;
+		textureDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+		textureDesc.Width = w;
+		textureDesc.Height = h;
+		textureDesc.Flags = D3D12_RESOURCE_FLAG_NONE;
+		textureDesc.DepthOrArraySize = 1;
+		textureDesc.SampleDesc.Count = 1;
+		textureDesc.SampleDesc.Quality = 0;
+		textureDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
+		textureDesc.Alignment = 0;
+		textureDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
 
-		_renderer->m_device->CreateCommittedResource(
-			&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
+		D3D12_HEAP_PROPERTIES heapProperties = {};
+		heapProperties.Type = D3D12_HEAP_TYPE_DEFAULT;
+		heapProperties.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
+		heapProperties.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;
+		heapProperties.CreationNodeMask = 1;
+		heapProperties.VisibleNodeMask = 1;
+
+		ThrowIfFailed( pDxRenderer->m_device->CreateCommittedResource(
+			&heapProperties,
 			D3D12_HEAP_FLAG_NONE,
-			&rd,
-			D3D12_RESOURCE_STATE_COPY_DEST,
+			&textureDesc,
+			D3D12_RESOURCE_STATE_COPY_DEST,// We will copy the texture from the upload heap to here, so we start it out in a copy dest state
 			nullptr,
 			IID_PPV_ARGS(&_texture)
-		);
+		) );
 
+		_texture->SetName(std::wstring(L"Texture2D_Resource_" + std::to_wstring(RefID)).c_str());
+		RefID++;
 		// Create the GPU upload buffer
-		const UINT64 uploadBufferSize = GetRequiredIntermediateSize(_texture, 0, 1);
+		UINT64 uploadBufferSize = 0;
+		{
+			pDxRenderer->m_device->GetCopyableFootprints(
+				&textureDesc,
+				0,
+				1,
+				0,
+				nullptr,
+				nullptr,
+				nullptr,
+				&uploadBufferSize);
+		}
 
-		_renderer->m_device->CreateCommittedResource(
-			&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
+		heapProperties.Type = D3D12_HEAP_TYPE_UPLOAD;
+
+		D3D12_RESOURCE_DESC rdBuffer = {};
+		rdBuffer.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
+		rdBuffer.Alignment = 0;
+		rdBuffer.Width = uploadBufferSize;
+		rdBuffer.Height = 1;
+		rdBuffer.DepthOrArraySize = 1;
+		rdBuffer.MipLevels = 1;
+		rdBuffer.Format = DXGI_FORMAT_UNKNOWN;
+		rdBuffer.SampleDesc.Count = 1;
+		rdBuffer.SampleDesc.Quality = 0;
+		rdBuffer.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
+		rdBuffer.Flags = D3D12_RESOURCE_FLAG_NONE;
+
+		ThrowIfFailed( pDxRenderer->m_device->CreateCommittedResource(
+			&heapProperties,
 			D3D12_HEAP_FLAG_NONE,
-			&CD3DX12_RESOURCE_DESC::Buffer(uploadBufferSize),
+			&rdBuffer,
 			D3D12_RESOURCE_STATE_GENERIC_READ,
 			nullptr,
 			IID_PPV_ARGS(&_textureUploadHeap)
-		);
+		) );
 
 		// Copy data to the intermediate upload heap and then schedule a copy
 		// from the upload heap to the Texture2D
 		D3D12_SUBRESOURCE_DATA textureData = {};
-		textureData.pData = &rgb;
-		textureData.RowPitch = w * 4; // 4 = size of pixel: rgba.
+		textureData.pData = rgba;
+		textureData.RowPitch = w * 4 * sizeof(unsigned char); // 4 = size of pixel: rgba.
 		textureData.SlicePitch = textureData.RowPitch * h;
 
-		UpdateSubresources(_renderer->m_commandList, _texture, _textureUploadHeap, 0, 0, 1, &textureData);
-		_renderer->m_commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(_texture, D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE));
+		D3D12_RESOURCE_BARRIER barrier = {};
+		barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+		barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+		barrier.Transition.pResource = _texture;
+		barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_COPY_DEST;
+		barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
+		barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+
+
+		UpdateSubresources(pDxRenderer->m_commandList, _texture, _textureUploadHeap, 0, 0, 1, &textureData);
+		pDxRenderer->m_commandList->ResourceBarrier(1, &barrier);
 
 		// Describe and create a SRV for the texture
 		D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
 		srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-		srvDesc.Format = rd.Format;
+		srvDesc.Format = textureDesc.Format;
 		srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
 		srvDesc.Texture2D.MipLevels = 1;
-		_renderer->m_device->CreateShaderResourceView(_texture, &srvDesc, _srvHeap->GetCPUDescriptorHandleForHeapStart());
+
+		pDxRenderer->m_device->CreateShaderResourceView(_texture, &srvDesc, pDxRenderer->m_resourceHeap->GetCPUDescriptorHandleForHeapStart());
 	}
 
-	//// Close the command list and execute it to begin the initial GPU setup.
-	//_renderer->m_commandList->Close();
-	//ID3D12CommandList* ppCommandLists[] = { _renderer->m_commandList };
-	//_renderer->m_commandQueue->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
+	// set the descriptor heap
+	ID3D12DescriptorHeap* descriptorHeaps[] = { pDxRenderer->m_resourceHeap };
+	pDxRenderer->m_commandList->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
+	// set the descriptor table to the descriptor heap (parameter 1, as constant buffer root descriptor is parameter index 0)
+	pDxRenderer->m_commandList->SetGraphicsRootDescriptorTable(1, pDxRenderer->m_resourceHeap->GetGPUDescriptorHandleForHeapStart());
 
-	//// Create synchronization objects and wait until assets have been uploaded to the GPU.
-	//{
-	//	_renderer->m_device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&_renderer->m_fence));
-	//	_renderer->m_fenceValue = 1;
+	// Close the command list and execute it to begin the initial GPU setup.
+	pDxRenderer->m_commandList->Close();
+	ID3D12CommandList* ppCommandLists[] = { pDxRenderer->m_commandList };
+	pDxRenderer->m_commandQueue->ExecuteCommandLists(_ARRAYSIZE(ppCommandLists), ppCommandLists);
 
-	//	// Create an event handle to use for frame synchronization.
-	//	_renderer->m_fenceEvent = CreateEvent(nullptr, FALSE, FALSE, nullptr);
-	//	if (_renderer->m_fenceEvent == nullptr)
-	//	{
-	//		// Error
-	//	}
-
-	//	// Wait for the command list to execute; we are reusing the same command 
-	//	// list in our main loop but for now, we just want to wait for setup to 
-	//	// complete before continuing.
-	//	_renderer->WaitForGPU();
-	//}
+	pDxRenderer->WaitForGPU();
 
 	SafeRelease(&_textureUploadHeap);
 
-	stbi_image_free(rgb);
-	return 0;
+	stbi_image_free(rgba);
+	return 1;
 }
 
 void DX_12Texture2D::bind(unsigned int slot)
 {
+}
+
+bool DX_12Texture2D::_checkTextureMap(std::string & str)
+{
+	auto it = s_textureMap.begin();
+	for (it; it != s_textureMap.end(); it++)
+	{
+		if (strcmp(it->first.c_str(), str.c_str()) == 0) //name exists already
+		{
+			this->_texture = it->second;
+			it->second->AddRef();
+			return true;
+		}
+	} //name does not exist yet
+	return false;
 }

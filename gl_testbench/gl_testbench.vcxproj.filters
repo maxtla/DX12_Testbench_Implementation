@@ -200,7 +200,10 @@
     <ClInclude Include="DirectX_12\DX_12VertexBuffer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="DirectX_12\d3dx12.h">
+    <ClInclude Include="DirectX_12\DX_12Helper.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DirectX_12\DX_12Mesh.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

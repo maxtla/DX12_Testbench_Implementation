@@ -7,6 +7,8 @@
 #include "DX_12VertexBuffer.h"
 #include "DX_12Texture2D.h"
 #include "DX_12Sampler2D.h"
+#include "MaterialDX_12.h"
+#include "DX_12Mesh.h"
 
 DX_12Renderer::DX_12Renderer()
 {
@@ -18,12 +20,12 @@ DX_12Renderer::~DX_12Renderer()
 
 Material * DX_12Renderer::makeMaterial(const std::string & name)
 {
-	return nullptr;
+	return new MaterialDX_12(name);
 }
 
 Mesh * DX_12Renderer::makeMesh()
 {
-	return nullptr;
+	return new DX_12Mesh();
 }
 
 VertexBuffer * DX_12Renderer::makeVertexBuffer(size_t size, VertexBuffer::DATA_USAGE usage)
@@ -53,7 +55,7 @@ Texture2D * DX_12Renderer::makeTexture2D()
 
 Sampler2D * DX_12Renderer::makeSampler2D()
 {
-	return new DX_12Sampler2D(this);
+	return new DX_12Sampler2D();
 }
 
 std::string DX_12Renderer::getShaderPath()
@@ -128,6 +130,13 @@ int DX_12Renderer::initialize(unsigned int width, unsigned int height)
 	if (FAILED(hr))
 	{
 		PostMessageBoxOnError(hr, L"Failed to create Render Targets: ", L"Fatal error", MB_ICONERROR, wHnd);
+		exit(-1);
+	}
+	//create resource heap
+	hr = _createResourceDescHeap();
+	if (FAILED(hr))
+	{
+		PostMessageBoxOnError(hr, L"Failed to create Resource Descriptor Heap: ", L"Fatal error", MB_ICONERROR, wHnd);
 		exit(-1);
 	}
 	//create the fence
@@ -409,6 +418,15 @@ HRESULT DX_12Renderer::_createRenderTargets()
 	return hr;
 }
 
+HRESULT DX_12Renderer::_createResourceDescHeap()
+{
+	D3D12_DESCRIPTOR_HEAP_DESC heapDescriptorDesc = {};
+	heapDescriptorDesc.NumDescriptors = 1;
+	heapDescriptorDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+	heapDescriptorDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+	return m_device->CreateDescriptorHeap(&heapDescriptorDesc, IID_PPV_ARGS(&m_resourceHeap));
+}
+
 HRESULT DX_12Renderer::_createFence()
 {
 	HRESULT hr = E_FAIL;
@@ -437,7 +455,7 @@ HRESULT DX_12Renderer::_createRootSignature()
 	D3D12_DESCRIPTOR_RANGE descRanges[1]; //Lets start with one
 	{
 		//1 CBV descriptor = 2 DWORDs
-		{	
+		{
 			descRanges[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
 			descRanges[0].NumDescriptors = 1; //Only assmuing one ConstantBuffer so far
 			descRanges[0].BaseShaderRegister = 0; // register b0
@@ -447,8 +465,24 @@ HRESULT DX_12Renderer::_createRootSignature()
 			DWORD_COUNT += 2;
 		}
 	}
+	
+	// did not know how many descriptor tabels and ranges we shall use.
+	//Start with defining descriptor ranges
+	D3D12_DESCRIPTOR_RANGE descRanges2[1]; //Lets start with one
+	{
+		//1 SRV descriptor = 2 DWORDs
+		{
+			descRanges2[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+			descRanges2[0].NumDescriptors = 1; //Only assmuing one texture so far
+			descRanges2[0].BaseShaderRegister = 0; // register t0
+			descRanges2[0].RegisterSpace = 0; //register(t0, space0);
+			descRanges2[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+
+			DWORD_COUNT += 2;
+		}
+	}
 	//Create necessary Descriptor Tables
-	D3D12_ROOT_DESCRIPTOR_TABLE descTables[1]; //Only need one so far
+	D3D12_ROOT_DESCRIPTOR_TABLE descTables[2]; //"Only need one so far"?
 	{
 		//1 Descriptor Table for the CBV descriptor = 1 DWORD
 		{
@@ -457,10 +491,17 @@ HRESULT DX_12Renderer::_createRootSignature()
 
 			DWORD_COUNT += 1;
 		}
+		//1 Descriptor Table for the SRV descriptor = 1 DWORD
+		{
+			descTables[1].NumDescriptorRanges = _ARRAYSIZE(descRanges2); //how many descriptors for this table
+			descTables[1].pDescriptorRanges = &descRanges2[0]; //pointer to descriptor array
+
+			DWORD_COUNT += 1;
+		}
 	}
 
 	//Create the root parameters (basically define the root table structure)
-	D3D12_ROOT_PARAMETER rootParams[1]; //We only have defined one element to insert (Descriptor table)
+	D3D12_ROOT_PARAMETER rootParams[2]; //We only have defined one element to insert (Descriptor table)
 	{
 		// [0] - Descriptor table for CBV descriptor
 		{
@@ -468,16 +509,41 @@ HRESULT DX_12Renderer::_createRootSignature()
 			rootParams[0].DescriptorTable = descTables[0]; //Which desc table?
 			rootParams[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX; //Which shader stages can access this entry? 
 		}
+		// [1] - Descriptor table for SRV descriptor
+		{
+			rootParams[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE; //What type is the entry?
+			rootParams[1].DescriptorTable = descTables[1]; //Which desc table?
+			rootParams[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL; //Which shader stages can access this entry? 
+		}
 	}
+
+	// Create descriptor of static sampler
+	D3D12_STATIC_SAMPLER_DESC sampler{};
+	sampler.Filter = D3D12_FILTER_MIN_MAG_MIP_POINT;
+	sampler.AddressU = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
+	sampler.AddressV = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
+	sampler.AddressW = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
+	sampler.MipLODBias = 0;
+	sampler.MaxAnisotropy = 0;
+	sampler.ComparisonFunc = D3D12_COMPARISON_FUNC_NEVER;
+	sampler.BorderColor = D3D12_STATIC_BORDER_COLOR_TRANSPARENT_BLACK;
+	sampler.MinLOD = 0.0f;
+	sampler.MaxLOD = D3D12_FLOAT32_MAX;
+	sampler.ShaderRegister = 0;
+	sampler.RegisterSpace = 0;
+	sampler.ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 
 	//Create the descriptions of the root signature
 	D3D12_ROOT_SIGNATURE_DESC rsDesc;
 	{
-		rsDesc.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT; //IA enabled = max 63 DWORDs
+		rsDesc.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT | //IA enabled = max 63 DWORDs
+			D3D12_ROOT_SIGNATURE_FLAG_DENY_HULL_SHADER_ROOT_ACCESS | // we can deny shader stages here for better performance
+			D3D12_ROOT_SIGNATURE_FLAG_DENY_DOMAIN_SHADER_ROOT_ACCESS |
+			D3D12_ROOT_SIGNATURE_FLAG_DENY_GEOMETRY_SHADER_ROOT_ACCESS;
 		rsDesc.NumParameters = _ARRAYSIZE(rootParams); //How many entries?
 		rsDesc.pParameters = rootParams; //Pointer to array of table entries
-		rsDesc.NumStaticSamplers = 0;  //No static samplers were defined
-		rsDesc.pStaticSamplers = NULL; //No static samplers were defined
+		rsDesc.NumStaticSamplers = 1;  //One static samplers were defined
+		rsDesc.pStaticSamplers = &sampler; // The static sampler
 	}
 
 	//Serialize the root signature (no error blob)
