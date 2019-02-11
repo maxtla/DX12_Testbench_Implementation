@@ -58,4 +58,5 @@ DX_12Technique::DX_12Technique(Material * m, RenderState * rs, DX_12Renderer * p
 
 DX_12Technique::~DX_12Technique()
 {
+	SafeRelease(&m_PSO);
 }

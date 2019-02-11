@@ -15,6 +15,11 @@
 #include "DX_12RenderState.h"
 #include "ConstantBufferDX_12.h"
 
+//
+#include <iostream>
+#include <chrono>
+//
+
 DX_12Renderer::DX_12Renderer()
 {
 }
@@ -188,7 +193,6 @@ void DX_12Renderer::setWinTitle(const char * title)
 
 int DX_12Renderer::shutdown()
 {
-	SafeRelease(&m_device);
 	SafeRelease(&m_commandQueue);
 	SafeRelease(&m_commandAllocator);
 	SafeRelease(&m_swapChain);
@@ -199,6 +203,7 @@ int DX_12Renderer::shutdown()
 	SafeRelease(&m_rootSignature);
 	SafeRelease(&m_commandList);
 	SafeRelease(&m_fence);
+	SafeRelease(&m_device);
 	SafeRelease(&m_debugController);
 
 	CloseHandle(m_fenceEvent);
@@ -237,8 +242,10 @@ void DX_12Renderer::present()
 {
 	DXGI_PRESENT_PARAMETERS pp = {};
 	m_swapChain->Present1(0, 0, &pp);
-
+	auto s = std::chrono::high_resolution_clock::now();
 	this->WaitForGPU();
+	auto e = std::chrono::high_resolution_clock::now();
+	std::cout << "\r" << std::chrono::duration_cast<std::chrono::nanoseconds>(e - s).count() << std::flush;
 
 	m_frameIndex = (m_frameIndex + 1) % FRAME_COUNT;
 }
@@ -272,7 +279,12 @@ inline void DX_12Renderer::PopulateCommandList()
 	// However, when ExecuteCommandList() is called on a particular command 
 	// list, that command list can then be reset at any time and must be before 
 	// re-recording.
-	ThrowIfFailed(m_commandList->Reset(m_commandAllocator, nullptr)); //we have no pipeline state object yet
+	for (auto &t : drawList)
+	{
+
+		ThrowIfFailed(m_commandList->Reset(m_commandAllocator, dynamic_cast<DX_12Technique*>(t.first)->m_PSO)); //we have no pipeline state object yet
+		break;
+	}
 
 	 // Set necessary state.
 	m_commandList->SetGraphicsRootSignature(m_rootSignature);
@@ -296,10 +308,6 @@ inline void DX_12Renderer::PopulateCommandList()
 
 		for (auto &m : t.second)
 		{
-			for (auto &tex : m->textures) //Bind textures? what, why tho, aren't they in root signature already?
-			{
-				tex.second->bind(tex.first);
-			}
 			for (auto &vtxBuffer : m->geometryBuffers) //Bind vtx buffers to IA 
 			{
 				m->bindIAVertexBuffer(vtxBuffer.first);
