@@ -7,7 +7,7 @@
 class ConstantBufferDX_12 : public ConstantBuffer
 {
 public:
-	ConstantBufferDX_12(std::string NAME, unsigned int location, ID3D12DescriptorHeap * pDescHeap);
+	ConstantBufferDX_12(std::string NAME, unsigned int location, ID3D12GraphicsCommandList * pCommandList);
 	~ConstantBufferDX_12();
 	void setData(const void* data, size_t size, Material* m, unsigned int location);
 	void bind(Material*);
@@ -16,6 +16,6 @@ private:
 	std::string name;
 	UINT location;
 
-	ID3D12Resource1* gConstantBufferResource = {};
-	static int RefID;
+	ID3D12GraphicsCommandList* m_commandList;
+	float m_data[4];
 };

@@ -19,26 +19,17 @@ MaterialDX_12::~MaterialDX_12()
 			cb.second = nullptr;
 		}
 	}
+	SafeRelease(&m_vertexShaderCode);
+	SafeRelease(&m_pixelShaderCode);
 }
 
 void MaterialDX_12::setShader(const std::string & shaderFileName, ShaderType type)
 {
-	if (shaderFileNames.find(type) != shaderFileNames.end())
-		removeShader(type);
-
 	shaderFileNames[type] = shaderFileName;
 }
 
 void MaterialDX_12::removeShader(ShaderType type)
 {
-	if (shaderFileNames.find(type) == shaderFileNames.end())
-	{
-		return;
-	}
-	else if (0)
-	{
-		// delete macros from previous shaders
-	}
 }
 
 void MaterialDX_12::setDiffuse(Color c)
@@ -116,12 +107,6 @@ void MaterialDX_12::updateConstantBuffer(const void * data, size_t size, unsigne
 
 int MaterialDX_12::enable()
 {
-	if (!isValid)
-		return -1;
-
-	for (auto cb : constantBuffers)
-		cb.second->bind(this);
-
 	return 0;
 }
 

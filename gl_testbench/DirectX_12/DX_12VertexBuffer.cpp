@@ -48,13 +48,13 @@ void DX_12VertexBuffer::setData(const void * data, size_t size, size_t offset)
 	void* dataBegin = nullptr;
 	D3D12_RANGE range = { 0, 0 }; //We do not intend to read this resource on the CPU.
 	_vertexBuffer->Map(0, &range, &dataBegin);
-	memcpy(((char*)dataBegin) + offset, data, sizeof(data));
+	memcpy(((char*)dataBegin) + offset, data, size);
 	_vertexBuffer->Unmap(0, nullptr);
 
 	//Initialize vertex buffer view, used in the render call.
 	_vertexBuffer_View.BufferLocation = _vertexBuffer->GetGPUVirtualAddress();
-	_vertexBuffer_View.StrideInBytes = size;
-	_vertexBuffer_View.SizeInBytes = sizeof(data);
+	_vertexBuffer_View.StrideInBytes = size / 3;
+	_vertexBuffer_View.SizeInBytes = size;
 
 	unbind();
 }
