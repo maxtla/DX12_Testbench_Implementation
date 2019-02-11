@@ -116,12 +116,6 @@ void MaterialDX_12::updateConstantBuffer(const void * data, size_t size, unsigne
 
 int MaterialDX_12::enable()
 {
-	if (!isValid)
-		return -1;
-
-	for (auto cb : constantBuffers)
-		cb.second->bind(this);
-
 	return 0;
 }
 

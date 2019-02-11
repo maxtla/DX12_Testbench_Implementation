@@ -41,7 +41,7 @@ VertexBuffer * DX_12Renderer::makeVertexBuffer(size_t size, VertexBuffer::DATA_U
 
 ConstantBuffer * DX_12Renderer::makeConstantBuffer(std::string NAME, unsigned int location)
 {
-	return new ConstantBufferDX_12(NAME, location, this->m_resourceHeap);
+	return new ConstantBufferDX_12(NAME, location, this->m_commandList);
 }
 
 RenderState * DX_12Renderer::makeRenderState()
@@ -304,6 +304,7 @@ inline void DX_12Renderer::PopulateCommandList()
 			{
 				m->bindIAVertexBuffer(vtxBuffer.first);
 			}
+			m->txBuffer->bind(nullptr);
 			//How many vertices to draw?
 			size_t nrOfVertices = m->geometryBuffers[0].numElements;
 			m_commandList->DrawInstanced(nrOfVertices, 1, 0, 0);
@@ -496,19 +497,10 @@ HRESULT DX_12Renderer::_createRootSignature()
 
 	unsigned int DWORD_COUNT = 0;
 	//Start with defining descriptor ranges
-	D3D12_DESCRIPTOR_RANGE descRanges[1]; //Lets start with one
-	{
-		//1 CBV descriptor = 2 DWORDs
-		{
-			descRanges[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
-			descRanges[0].NumDescriptors = 1; //Only assmuing one ConstantBuffer so far
-			descRanges[0].BaseShaderRegister = 0; // register b0
-			descRanges[0].RegisterSpace = 0; //register(b0, space0);
-			descRanges[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
-
-			DWORD_COUNT += 2;
-		}
-	}
+	D3D12_ROOT_CONSTANTS rootConstants[1];
+	rootConstants[0].Num32BitValues = 4;
+	rootConstants[0].RegisterSpace = 0;
+	rootConstants[0].ShaderRegister = 0;
 	
 	// did not know how many descriptor tabels and ranges we shall use.
 	//Start with defining descriptor ranges
@@ -526,19 +518,13 @@ HRESULT DX_12Renderer::_createRootSignature()
 		}
 	}
 	//Create necessary Descriptor Tables
-	D3D12_ROOT_DESCRIPTOR_TABLE descTables[2]; //"Only need one so far"?
+	D3D12_ROOT_DESCRIPTOR_TABLE descTables[1]; //"Only need one so far"?
 	{
-		//1 Descriptor Table for the CBV descriptor = 1 DWORD
-		{
-			descTables[0].NumDescriptorRanges = _ARRAYSIZE(descRanges); //how many descriptors for this table
-			descTables[0].pDescriptorRanges = &descRanges[0]; //pointer to descriptor array
-
-			DWORD_COUNT += 1;
-		}
+		
 		//1 Descriptor Table for the SRV descriptor = 1 DWORD
 		{
-			descTables[1].NumDescriptorRanges = _ARRAYSIZE(descRanges2); //how many descriptors for this table
-			descTables[1].pDescriptorRanges = &descRanges2[0]; //pointer to descriptor array
+			descTables[0].NumDescriptorRanges = _ARRAYSIZE(descRanges2); //how many descriptors for this table
+			descTables[0].pDescriptorRanges = &descRanges2[0]; //pointer to descriptor array
 
 			DWORD_COUNT += 1;
 		}
@@ -549,14 +535,14 @@ HRESULT DX_12Renderer::_createRootSignature()
 	{
 		// [0] - Descriptor table for CBV descriptor
 		{
-			rootParams[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE; //What type is the entry?
-			rootParams[0].DescriptorTable = descTables[0]; //Which desc table?
+			rootParams[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS; //What type is the entry?
+			rootParams[0].Constants = rootConstants[0]; //Which desc table?
 			rootParams[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX; //Which shader stages can access this entry? 
 		}
 		// [1] - Descriptor table for SRV descriptor
 		{
 			rootParams[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE; //What type is the entry?
-			rootParams[1].DescriptorTable = descTables[1]; //Which desc table?
+			rootParams[1].DescriptorTable = descTables[0]; //Which desc table?
 			rootParams[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL; //Which shader stages can access this entry? 
 		}
 	}
