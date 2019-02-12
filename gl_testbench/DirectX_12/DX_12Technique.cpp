@@ -53,6 +53,7 @@ DX_12Technique::DX_12Technique(Material * m, RenderState * rs, DX_12Renderer * p
 	psoDesc.SampleDesc.Count = 1;
 
 	ThrowIfFailed(pRenderer->m_device->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&m_PSO)));
+	m_PSO->SetName(L"PSO");
 }
 
 

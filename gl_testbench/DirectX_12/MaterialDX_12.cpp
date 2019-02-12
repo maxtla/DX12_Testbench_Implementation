@@ -15,7 +15,7 @@ MaterialDX_12::~MaterialDX_12()
 	{
 		if (cb.second != nullptr)
 		{
-			delete(cb.second);
+			delete cb.second;
 			cb.second = nullptr;
 		}
 	}
