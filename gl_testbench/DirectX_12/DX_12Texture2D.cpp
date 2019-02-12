@@ -21,6 +21,8 @@ DX_12Texture2D::~DX_12Texture2D()
 			break;
 		}
 	}
+	if (_texture)
+		SafeRelease(&_texture);
 	_texture = NULL;
 }
 

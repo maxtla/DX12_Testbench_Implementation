@@ -26,7 +26,6 @@ DX_12Renderer::DX_12Renderer()
 
 DX_12Renderer::~DX_12Renderer()
 {
-	
 }
 
 Material * DX_12Renderer::makeMaterial(const std::string & name)
