@@ -240,7 +240,6 @@ void DX_12Renderer::submit(Mesh * mesh)
 
 void DX_12Renderer::frame()
 {
-	//clearColor[0] = float(rand() % 256) / 255.f; //just for basic testing
 	this->PopulateCommandList();
 	ID3D12CommandList* listsToExecute[] = { m_commandList };
 	m_commandQueue->ExecuteCommandLists(_ARRAYSIZE(listsToExecute), listsToExecute);
@@ -250,10 +249,10 @@ void DX_12Renderer::present()
 {
 	DXGI_PRESENT_PARAMETERS pp = {};
 	m_swapChain->Present1(0, 0, &pp);
-	auto s = std::chrono::high_resolution_clock::now();
+	//auto s = std::chrono::high_resolution_clock::now();
 	this->WaitForGPU();
-	auto e = std::chrono::high_resolution_clock::now();
-	std::cout << "\r" << std::chrono::duration_cast<std::chrono::nanoseconds>(e - s).count() << std::flush;
+	//auto e = std::chrono::high_resolution_clock::now();
+	//std::cout << "\r" << std::chrono::duration_cast<std::chrono::nanoseconds>(e - s).count() << std::flush;
 
 	m_frameIndex = (m_frameIndex + 1) % FRAME_COUNT;
 }

@@ -7,8 +7,11 @@ DX_12Technique::DX_12Technique(Material * m, RenderState * rs, DX_12Renderer * p
 	MaterialDX_12 * pDX_m = dynamic_cast<MaterialDX_12*>(m);
 	DX_12RenderState * pDX_rs = dynamic_cast<DX_12RenderState*>(rs);
 
+#ifdef _DEBUG
 	assert(pDX_m);
 	assert(pDX_rs);
+#endif // _DEBUG
+
 
 	auto shaderCodes = pDX_m->GetShaderCodePtrs();
 	auto rsDesc = pDX_rs->GetRSDesc();
