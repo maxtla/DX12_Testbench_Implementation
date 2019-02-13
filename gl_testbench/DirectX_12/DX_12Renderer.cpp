@@ -303,8 +303,8 @@ inline void DX_12Renderer::PopulateCommandList()
 	{
 		t.first->enable(this);
 		//Bind PSO object?
-		m_commandList->SetPipelineState(dynamic_cast<DX_12Technique*>(t.first)->m_PSO);
 
+		m_commandList->SetPipelineState(dynamic_cast<DX_12Technique*>(t.first)->m_PSO);
 		for (auto &m : t.second)
 		{
 			for (auto &vtxBuffer : m->geometryBuffers) //Bind vtx buffers to IA 
@@ -317,6 +317,7 @@ inline void DX_12Renderer::PopulateCommandList()
 			m_commandList->DrawInstanced(nrOfVertices, 1, 0, 0);
 		}
 	}
+	drawList.clear();
 	// Indicate that the back buffer will now be used to present.
 	SetResourceTransitionBarrier(D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
 
