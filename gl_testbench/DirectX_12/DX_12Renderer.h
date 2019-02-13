@@ -60,17 +60,17 @@ private:
 	ID3D12CommandQueue* m_commandQueue		    = NULL;
 	ID3D12CommandAllocator * m_commandAllocator	= NULL;
 	IDXGISwapChain3* m_swapChain								= NULL;
-	ID3D12DescriptorHeap* m_rtvDescHeap				    = NULL;
-	ID3D12DescriptorHeap* m_resourceHeap					= NULL;
 	ID3D12Resource* m_renderTargets[FRAME_COUNT]	= { NULL, NULL };
 	D3D12_VIEWPORT m_viewPort	                                = {};
 	D3D12_RECT m_scissorRect                                        = {};
 	ID3D12RootSignature* m_rootSignature					= NULL;
-	//ID3D12PipelineState* m_pipelineState                       = NULL; //I think this should be elsewhere 
 	ID3D12GraphicsCommandList* m_commandList       = NULL;
 	UINT m_rtvDescSize													= 0;
-
-
+	ID3D12Resource * m_depthBuffer								= NULL;
+	//Heaps
+	ID3D12DescriptorHeap* m_rtvDescHeap				    = NULL;
+	ID3D12DescriptorHeap* m_resourceHeap					= NULL;
+	ID3D12DescriptorHeap* m_depthHeap						= NULL;
 	//Synchronization objects
 	UINT m_frameIndex												= 0;
 	HANDLE m_fenceEvent										= NULL;
@@ -96,6 +96,7 @@ private:
 	HRESULT _createResourceDescHeap();
 	HRESULT _createFence();
 	HRESULT _createRootSignature();
+	HRESULT _createDepthBuffer(float width, float height);
 
 	std::unordered_map<Technique*, std::vector<Mesh*>> drawList;
 };

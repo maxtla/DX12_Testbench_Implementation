@@ -6,10 +6,10 @@ DX_12RenderState::DX_12RenderState()
 {
 	m_rsDesc.AntialiasedLineEnable = TRUE;
 	m_rsDesc.ConservativeRaster = D3D12_CONSERVATIVE_RASTERIZATION_MODE_OFF;
-	m_rsDesc.CullMode = D3D12_CULL_MODE_BACK;
+	m_rsDesc.CullMode = D3D12_CULL_MODE_NONE;
 	m_rsDesc.DepthBias = D3D12_DEFAULT_DEPTH_BIAS;
 	m_rsDesc.DepthBiasClamp = D3D12_DEFAULT_DEPTH_BIAS_CLAMP;
-	m_rsDesc.DepthClipEnable = TRUE;
+	m_rsDesc.DepthClipEnable = FALSE;
 	m_rsDesc.ForcedSampleCount = 0;
 	m_rsDesc.FrontCounterClockwise = FALSE;
 	m_rsDesc.MultisampleEnable = FALSE;
@@ -37,10 +37,10 @@ void DX_12RenderState::set()
 
 	m_rsDesc.AntialiasedLineEnable = TRUE;
 	m_rsDesc.ConservativeRaster = D3D12_CONSERVATIVE_RASTERIZATION_MODE_OFF;
-	m_rsDesc.CullMode = D3D12_CULL_MODE_BACK;
+	m_rsDesc.CullMode = D3D12_CULL_MODE_NONE;
 	m_rsDesc.DepthBias = D3D12_DEFAULT_DEPTH_BIAS;
 	m_rsDesc.DepthBiasClamp = D3D12_DEFAULT_DEPTH_BIAS_CLAMP;
-	m_rsDesc.DepthClipEnable = TRUE;
+	m_rsDesc.DepthClipEnable = FALSE;
 	m_rsDesc.ForcedSampleCount = 0;
 	m_rsDesc.FrontCounterClockwise = FALSE;
 	m_rsDesc.MultisampleEnable = FALSE;

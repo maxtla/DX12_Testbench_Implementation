@@ -163,6 +163,13 @@ int DX_12Renderer::initialize(unsigned int width, unsigned int height)
 		PostMessageBoxOnError(hr, L"Failed to create Root Signature: ", L"Fatal error", MB_ICONERROR, wHnd);
 		exit(-1);
 	}
+	//create the Depthbuffer and DSV
+	hr = _createDepthBuffer(width, height);
+	if (FAILED(hr))
+	{
+		PostMessageBoxOnError(hr, L"Failed to create Depth buffer: ", L"Fatal error", MB_ICONERROR, wHnd);
+		exit(-1);
+	}
 	//Release objects that are no longer needed
 	SafeRelease(&factory);
 	SafeRelease(&adapter);
@@ -202,6 +209,8 @@ int DX_12Renderer::shutdown()
 	SafeRelease(&m_rootSignature);
 	SafeRelease(&m_commandList);
 	SafeRelease(&m_fence);
+	SafeRelease(&m_depthHeap);
+	SafeRelease(&m_depthBuffer);
 	SafeRelease(&m_device);
 	SafeRelease(&m_debugController);
 
@@ -268,6 +277,7 @@ inline void DX_12Renderer::PopulateCommandList()
 	D3D12_CPU_DESCRIPTOR_HANDLE cdh = m_rtvDescHeap->GetCPUDescriptorHandleForHeapStart();
 	cdh.ptr += m_rtvDescSize * m_frameIndex;
 
+	D3D12_CPU_DESCRIPTOR_HANDLE cdh_DSV = m_depthHeap->GetCPUDescriptorHandleForHeapStart();
 	//Taken mostly from MSDN guide for basic dx12 component
 
 	// Command list allocators can only be reset when the associated 
@@ -294,28 +304,38 @@ inline void DX_12Renderer::PopulateCommandList()
 	SetResourceTransitionBarrier(D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
 
 	// Record commands.
-	m_commandList->OMSetRenderTargets(1, &cdh, TRUE, nullptr);
+	m_commandList->OMSetRenderTargets(1, &cdh, TRUE, &cdh_DSV);
 	m_commandList->ClearRenderTargetView(cdh, clearColor, 0, nullptr);
+	m_commandList->ClearDepthStencilView(cdh_DSV, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
 	m_commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
+	//m_commandList->SetDescriptorHeaps(1, &m_resourceHeap);
+	//m_commandList->SetGraphicsRootDescriptorTable(1, m_resourceHeap->GetGPUDescriptorHandleForHeapStart());
+	int i = 0;
 	//Iterate through Mesh lists now?
 	for (auto &t : drawList)
 	{
-		t.first->enable(this);
-		//Bind PSO object?
-
-		m_commandList->SetPipelineState(dynamic_cast<DX_12Technique*>(t.first)->m_PSO);
-		for (auto &m : t.second)
+		if (true)
 		{
-			for (auto &vtxBuffer : m->geometryBuffers) //Bind vtx buffers to IA 
+			t.first->enable(this);
+			//Bind PSO object?
+
+			m_commandList->SetPipelineState(dynamic_cast<DX_12Technique*>(t.first)->m_PSO);
+			for (auto &m : t.second)
 			{
-				m->bindIAVertexBuffer(vtxBuffer.first);
+				for (auto &vtxBuffer : m->geometryBuffers) //Bind vtx buffers to IA 
+				{
+					m->bindIAVertexBuffer(vtxBuffer.first);
+				}
+				m->txBuffer->bind(nullptr);
+				//How many vertices to draw?
+				size_t nrOfVertices = m->geometryBuffers[0].numElements;
+				m_commandList->DrawInstanced(nrOfVertices, 1, 0, 0);
 			}
-			m->txBuffer->bind(nullptr);
-			//How many vertices to draw?
-			size_t nrOfVertices = m->geometryBuffers[0].numElements;
-			m_commandList->DrawInstanced(nrOfVertices, 1, 0, 0);
+			
 		}
+
+		i++;
 	}
 	drawList.clear();
 	// Indicate that the back buffer will now be used to present.
@@ -596,4 +616,69 @@ HRESULT DX_12Renderer::_createRootSignature()
 	//Use d3d12 device to create the root signature
 	UINT nodeMask = 0;
 	return this->m_device->CreateRootSignature(nodeMask, pSerBlob->GetBufferPointer(), pSerBlob->GetBufferSize(), IID_PPV_ARGS(&this->m_rootSignature));
+}
+
+HRESULT DX_12Renderer::_createDepthBuffer(float width, float height)
+{
+	HRESULT hr = E_FAIL;
+
+	// create a depth stencil descriptor heap so we can get a pointer to the depth stencil buffer
+	D3D12_DESCRIPTOR_HEAP_DESC dsvHeapDesc = {};
+	dsvHeapDesc.NumDescriptors = 1;
+	dsvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
+	dsvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+
+	hr = m_device->CreateDescriptorHeap(&dsvHeapDesc, IID_PPV_ARGS(&m_depthHeap));
+	if (FAILED(hr))
+		return hr;
+
+	m_depthHeap->SetName(L"Depth Resource Heap");
+
+	D3D12_DEPTH_STENCIL_VIEW_DESC depthStencilDesc = {};
+	depthStencilDesc.Format = DXGI_FORMAT_D32_FLOAT;
+	depthStencilDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
+	depthStencilDesc.Flags = D3D12_DSV_FLAG_NONE;
+
+	D3D12_CLEAR_VALUE depthOptimizedClearValue = {};
+	depthOptimizedClearValue.Format = DXGI_FORMAT_D32_FLOAT;
+	depthOptimizedClearValue.DepthStencil.Depth = 1.0f;
+	depthOptimizedClearValue.DepthStencil.Stencil = 0;
+
+	D3D12_HEAP_PROPERTIES heapProperties = {};
+	heapProperties.Type = D3D12_HEAP_TYPE_DEFAULT;
+	heapProperties.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
+	heapProperties.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;
+	heapProperties.CreationNodeMask = 1;
+	heapProperties.VisibleNodeMask = 1;
+
+	D3D12_RESOURCE_DESC textureDesc = {};
+	textureDesc.MipLevels = 1;
+	textureDesc.Format = DXGI_FORMAT_D32_FLOAT;
+	textureDesc.Width = width;
+	textureDesc.Height = height;
+	textureDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
+	textureDesc.DepthOrArraySize = 1;
+	textureDesc.SampleDesc.Count = 1;
+	textureDesc.SampleDesc.Quality = 0;
+	textureDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
+	textureDesc.Alignment = 0;
+	textureDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
+
+	hr = m_device->CreateCommittedResource(
+		&heapProperties,
+		D3D12_HEAP_FLAG_NONE,
+		&textureDesc,
+		D3D12_RESOURCE_STATE_DEPTH_WRITE,
+		&depthOptimizedClearValue,
+		IID_PPV_ARGS(&m_depthBuffer)
+	);
+
+	if (FAILED(hr))
+		return hr;
+
+	m_depthBuffer->SetName(L"DepthBufferResource");
+
+	m_device->CreateDepthStencilView(m_depthBuffer, &depthStencilDesc, m_depthHeap->GetCPUDescriptorHandleForHeapStart());
+
+	return hr;
 }

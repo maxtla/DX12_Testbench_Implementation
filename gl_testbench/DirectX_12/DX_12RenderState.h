@@ -11,7 +11,7 @@ public:
 	void set();
 	const D3D12_RASTERIZER_DESC & GetRSDesc() { return m_rsDesc; }
 private:
-	bool m_wireFrame;
+	bool m_wireFrame = false;
 	D3D12_RASTERIZER_DESC m_rsDesc = {};
 };
 
