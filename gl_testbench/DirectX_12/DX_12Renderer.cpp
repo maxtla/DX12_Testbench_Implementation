@@ -30,7 +30,7 @@ DX_12Renderer::~DX_12Renderer()
 
 Material * DX_12Renderer::makeMaterial(const std::string & name)
 {
-	return new MaterialDX_12(name);
+	return new MaterialDX_12(name, this->m_commandList);
 }
 
 Mesh * DX_12Renderer::makeMesh()
@@ -524,11 +524,14 @@ HRESULT DX_12Renderer::_createRootSignature()
 
 	unsigned int DWORD_COUNT = 0;
 	//Start with defining descriptor ranges
-	D3D12_ROOT_CONSTANTS rootConstants[1];
+	D3D12_ROOT_CONSTANTS rootConstants[2];
 	rootConstants[0].Num32BitValues = 4;
 	rootConstants[0].RegisterSpace = 0;
 	rootConstants[0].ShaderRegister = 0;
-	
+	rootConstants[1].Num32BitValues = 4;
+	rootConstants[1].RegisterSpace = 0;
+	rootConstants[1].ShaderRegister = 1;
+
 	// did not know how many descriptor tabels and ranges we shall use.
 	//Start with defining descriptor ranges
 	D3D12_DESCRIPTOR_RANGE descRanges2[1]; //Lets start with one
@@ -558,19 +561,25 @@ HRESULT DX_12Renderer::_createRootSignature()
 	}
 
 	//Create the root parameters (basically define the root table structure)
-	D3D12_ROOT_PARAMETER rootParams[2]; //We only have defined one element to insert (Descriptor table)
+	D3D12_ROOT_PARAMETER rootParams[3]; //We only have defined one element to insert (Descriptor table)
 	{
-		// [0] - Descriptor table for CBV descriptor
+		// [0] - Descriptor table for CBV descriptor(translation)
 		{
 			rootParams[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS; //What type is the entry?
 			rootParams[0].Constants = rootConstants[0]; //Which desc table?
 			rootParams[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX; //Which shader stages can access this entry? 
 		}
+		// [0] - Descriptor table for CBV descriptor(tint collor)
+		{
+			rootParams[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS; //What type is the entry?
+			rootParams[1].Constants = rootConstants[1]; //Which desc table?
+			rootParams[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL; //Which shader stages can access this entry? 
+		}
 		// [1] - Descriptor table for SRV descriptor
 		{
-			rootParams[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE; //What type is the entry?
-			rootParams[1].DescriptorTable = descTables[0]; //Which desc table?
-			rootParams[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL; //Which shader stages can access this entry? 
+			rootParams[2].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE; //What type is the entry?
+			rootParams[2].DescriptorTable = descTables[0]; //Which desc table?
+			rootParams[2].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL; //Which shader stages can access this entry? 
 		}
 	}
 

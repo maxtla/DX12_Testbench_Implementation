@@ -3,10 +3,11 @@
 #include "MaterialDX_12.h"
 #include <d3dcompiler.h>
 
-MaterialDX_12::MaterialDX_12(const std::string & name)
+MaterialDX_12::MaterialDX_12(const std::string & name, ID3D12GraphicsCommandList * pCommandList)
 {
 	isValid = false;
 	this->name = name;
+	m_commandList = pCommandList;
 }
 
 MaterialDX_12::~MaterialDX_12()
@@ -99,14 +100,22 @@ int MaterialDX_12::compileMaterial(std::string & errString)
 
 void MaterialDX_12::addConstantBuffer(std::string name, unsigned int location)
 {
+	for (int i = 0; i < 4; i++)
+	{
+		m_data[i] = 0.0f;
+	}
 }
 
 void MaterialDX_12::updateConstantBuffer(const void * data, size_t size, unsigned int location)
 {
+	float* dataArr = (float*)data;
+	for (int i = 0; i < 4; i++)
+		m_data[i] = dataArr[i];
 }
 
 int MaterialDX_12::enable()
 {
+	m_commandList->SetGraphicsRoot32BitConstants(1, 4, (const void*)m_data, 0);
 	return 0;
 }
 

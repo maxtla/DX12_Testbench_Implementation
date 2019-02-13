@@ -7,7 +7,7 @@
 class MaterialDX_12 : public Material
 {
 public:
-	MaterialDX_12(const std::string& name);
+	MaterialDX_12(const std::string& name, ID3D12GraphicsCommandList * pCommandList);
 	~MaterialDX_12();
 
 	// set shader name, DOES NOT COMPILE
@@ -52,6 +52,9 @@ private:
 	
 	ID3DBlob * m_vertexShaderCode	 = NULL;
 	ID3DBlob * m_pixelShaderCode		 = NULL;
+
+	ID3D12GraphicsCommandList * m_commandList = nullptr;
+	float m_data[4];
 private:
 	void _findMacros(ShaderType type, D3D_SHADER_MACRO** macros);
 };
