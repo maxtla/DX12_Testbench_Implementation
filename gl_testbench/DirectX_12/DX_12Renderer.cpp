@@ -310,6 +310,13 @@ inline void DX_12Renderer::PopulateCommandList()
 
 	//m_commandList->SetDescriptorHeaps(1, &m_resourceHeap);
 	//m_commandList->SetGraphicsRootDescriptorTable(1, m_resourceHeap->GetGPUDescriptorHandleForHeapStart());
+
+	// set the descriptor heap
+	ID3D12DescriptorHeap* descriptorHeaps[] = { m_resourceHeap };
+	m_commandList->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
+	// set the descriptor table to the descriptor heap (parameter 2, as constant buffer root descriptor is parameter index 0 and 1)
+	m_commandList->SetGraphicsRootDescriptorTable(2, m_resourceHeap->GetGPUDescriptorHandleForHeapStart());
+
 	int i = 0;
 	//Iterate through Mesh lists now?
 	for (auto &t : drawList)
